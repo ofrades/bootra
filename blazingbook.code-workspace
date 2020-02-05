@@ -1,0 +1,26 @@
+{
+  "folders": [
+    {
+      "path": "."
+    }
+  ],
+  "settings": {
+    "sqltools.connections": [
+      {
+        "database": "Microsoft.eShopOnWeb.CatalogDb",
+        "dialect": "MSSQL",
+        "name": "eshop",
+        "password": "Ofrades12345",
+        "port": 1433,
+        "server": "localhost",
+        "username": "sa"
+      },
+      {
+        "database": "${workspaceFolder:blazingbook}/src/BlazingBook.Server/book.db",
+        "dialect": "SQLite",
+        "name": "BlazingBook"
+      }
+    ],
+    "sqltools.useNodeRuntime": true
+  }
+}
