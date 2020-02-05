@@ -1,0 +1,91 @@
+﻿@inject HttpClient HttpClient
+
+<div class="dialog-title">
+    <h2>@Book.Special.Name</h2>
+    @Book.Special.Description
+</div>
+<form class="dialog-body">
+    <div>
+        <label>Size:</label>
+        <input type="range" min="@Book.MinimumSize" max="@Book.MaximumSize" step="1" @bind="Book.Size" @bind:event="oninput" />
+        <span class="size-label">
+            @(Book.Size)" (£@(Book.GetFormattedTotalPrice()))
+        </span>
+    </div>
+    <div>
+        <label>Extra Extras:</label>
+        @if (extras == null)
+        {
+            <select class="custom-select" disabled>
+                <option>(loading...)</option>
+            </select>
+        }
+        else if (Book.Extras.Count >= 6)
+        {
+            <div>(maximum reached)</div>
+        }
+        else
+        {
+            <select class="custom-select" @onchange="ExtraSelected">
+                <option value="-1" disabled selected>(select)</option>
+                @for (var i = 0; i < extras.Count; i++)
+                {
+                    <option value="@i">@extras[i].Name - (£@(extras[i].GetFormattedPrice()))</option>
+                }
+            </select>
+        }
+    </div>
+
+    <div class="extras">
+        @foreach (var extra in Book.Extras)
+        {
+            <div class="extra">
+                @extra.Extra.Name
+                <span class="extra-price">@extra.Extra.GetFormattedPrice()</span>
+                <button type="button" class="delete-extra" @onclick="@(() => RemoveExtra(extra.Extra))">x</button>
+            </div>
+        }
+    </div>
+</form>
+
+<div class="dialog-buttons">
+    <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
+    <span class="mr-center">
+        Price: <span class="price">@(Book.GetFormattedTotalPrice())</span>
+    </span>
+    <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
+</div>
+
+@code {
+    List<Extra> extras;
+
+    [Parameter] public Book Book { get; set; }
+    [Parameter] public EventCallback OnCancel { get; set; }
+    [Parameter] public EventCallback OnConfirm { get; set; }
+
+    protected async override Task OnInitializedAsync()
+    {
+        extras = await HttpClient.GetJsonAsync<List<Extra>>("extras");
+    }
+
+    void ExtraSelected(ChangeEventArgs e)
+    {
+        if (int.TryParse((string)e.Value, out var index) && index >= 0)
+        {
+            AddExtra(extras[index]);
+        }
+    }
+
+    void AddExtra(Extra extra)
+    {
+        if (Book.Extras.Find(pt => pt.Extra == extra) == null)
+        {
+            Book.Extras.Add(new BookExtra() { Extra = extra });
+        }
+    }
+
+    void RemoveExtra(Extra extra)
+    {
+        Book.Extras.RemoveAll(pt => pt.Extra == extra);
+    }
+}

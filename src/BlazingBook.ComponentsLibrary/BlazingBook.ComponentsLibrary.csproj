@@ -3,7 +3,7 @@
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
     <RazorLangVersion>3.0</RazorLangVersion>
-    <RootNamespace>BlazingComponents</RootNamespace>
+    <RootNamespace>BlazingBook.ComponentsLibrary</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>

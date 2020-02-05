@@ -1,0 +1,31 @@
+﻿@inherits LayoutComponentBase
+
+<Bar Breakpoint="Breakpoint.Desktop" Background="Background.Transparent" ThemeContrast="ThemeContrast.Light">
+    <BarBrand class="logo">BOOTRA</BarBrand>
+    <BarToggler>
+    </BarToggler>
+    <BarMenu>
+        <BarStart>
+            <BarItem>
+                <BarLink href="">
+                    <span class="iconify" data-icon="dashicons:book-alt" data-inline="false"></span>
+                    Get Book
+                </BarLink>
+            </BarItem>
+            <BarItem>
+                <BarLink href="myorders">
+                    <span class="iconify" data-icon="whh:bag" data-inline="false"></span>
+                    My Orders
+                </BarLink>
+            </BarItem>
+        </BarStart>
+        <BarEnd>
+            <Basket />
+            <LoginDisplay />
+        </BarEnd>
+    </BarMenu>
+</Bar>
+
+<div class="content">
+    @Body
+</div>

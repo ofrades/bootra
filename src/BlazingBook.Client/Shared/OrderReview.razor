@@ -1,0 +1,28 @@
+﻿@foreach (var book in Order.Books)
+{
+    <p>
+        <strong>
+            @(book.Size)"
+            @book.Special.Name
+            (£@book.GetFormattedTotalPrice())
+        </strong>
+    </p>
+
+    <ul>
+        @foreach (var extra in book.Extras)
+        {
+            <li>+ @extra.Extra.Name</li>
+        }
+    </ul>
+}
+
+<p>
+    <strong>
+        Total price:
+        £@Order.GetFormattedTotalPrice()
+    </strong>
+</p>
+
+@code {
+    [Parameter] public Order Order { get; set; }
+}

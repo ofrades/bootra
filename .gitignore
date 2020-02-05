@@ -333,4 +333,4 @@ ASALocalRun/
 *.db
 
 # Don't ignore server launchSettings.json. We need a specific port number for auth to work.
-!**/BlazingPizza.Server/Properties/launchSettings.json
+!**/BlazingBook.Server/Properties/launchSettings.json
