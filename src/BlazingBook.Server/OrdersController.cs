@@ -23,7 +23,7 @@ namespace BlazingBook.Server {
         public async Task<ActionResult<List<OrderWithStatus>>> GetOrders() {
             var orders = await _db.Orders
                 .Where(o => o.UserId == GetUserId())
-                .Include(o => o.Books).ThenInclude(p => p.Special)
+                .Include(o => o.Books).ThenInclude(p => p.BookBase)
                 .Include(o => o.Books).ThenInclude(p => p.Extras).ThenInclude(t => t.Extra)
                 .OrderByDescending(o => o.CreatedTime)
                 .ToListAsync();
@@ -36,7 +36,7 @@ namespace BlazingBook.Server {
             var order = await _db.Orders
                 .Where(o => o.OrderId == orderId)
                 .Where(o => o.UserId == GetUserId())
-                .Include(o => o.Books).ThenInclude(p => p.Special)
+                .Include(o => o.Books).ThenInclude(p => p.BookBase)
                 .Include(o => o.Books).ThenInclude(p => p.Extras).ThenInclude(t => t.Extra)
                 .SingleOrDefaultAsync();
 
@@ -52,12 +52,12 @@ namespace BlazingBook.Server {
             order.CreatedTime = DateTime.Now;
             order.UserId = GetUserId();
 
-            // Enforce existence of Book.SpecialId and Extra.ExtraId
+            // Enforce existence of Book.BookBaseId and Extra.ExtraId
             // in the database - prevent the submitter from making up
-            // new specials and extras
+            // new bookbases and extras
             foreach (var book in order.Books) {
-                book.SpecialId = book.Special.Id;
-                book.Special = null;
+                book.BookBaseId = book.BookBase.Id;
+                book.BookBase = null;
 
                 foreach (var extra in book.Extras) {
                     extra.ExtraId = extra.Extra.Id;

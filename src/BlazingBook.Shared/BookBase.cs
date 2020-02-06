@@ -2,7 +2,7 @@
     /// <summary>
     /// Represents a pre-configured template for a book a user can order
     /// </summary>
-    public class BookSpecial {
+    public class BookBase {
         public int Id { get; set; }
 
         public string Name { get; set; }

@@ -1,27 +1,57 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
+@inject IJSRuntime IJSRuntime
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 
+@if (Order.Books.Any()) {
+<Sidebar @ref="sidebar">
+    <SidebarContent>
+        <SidebarNavigation>
+                <SidebarLabel>Shopping Bag <NavBasket /></SidebarLabel>
+                    <SidebarItem>
+                        @foreach (var configuredBook in Order.Books) {
+                            <ConfiguredBookItem BookCustom="configuredBook" OnRemoved="@(() => RemoveBook(configuredBook))" />
+                        }
+                    </SidebarItem>
+                    <SidebarItem>
+                        <div class="order-total @(Order.Books.Any() ? "" : "hidden")">
+                            Total:
+                    
+                            <span class="total-price">@Order.GetFormattedTotalPrice()</span>
+                            <a href="checkout">
+                                <Button Color="Color.Warning" disabled="@(Order.Books.Count == 0)">
+                                Order
+                                </Button>
+                            </a>
+                        </div>
+                    </SidebarItem>
+        </SidebarNavigation>
+    </SidebarContent>
+</Sidebar>
+}
+
 <div class="main">
-    <Column ColumnSize="ColumnSize.IsHalf">
+    <Column ColumnSize="ColumnSize.Is4" Class="text-center">
         <TextEdit Placeholder="Search..." @bind-Text="@search"/>
     </Column>
-    @if (specials != null) {
+    @if (Bookbase != null) {
         <CardGroup>
-            @foreach (var special in specials){
-                <Column ColumnSize="ColumnSize.IsHalf">
+            @foreach (var item in Bookbase){
+                <Column ColumnSize="ColumnSize.Is4.OnTablet.Is3.OnWidescreen.Is12.OnMobile">
                     <Card Margin="Margin.Is4.OnY">
-                        <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(special))">
-                            <CardImage src="@special.ImageUrl">
+                            <CardImage src="@item.ImageUrl">
                             </CardImage>
                                 <CardBody>
-                                    <CardTitle>@special.Name</CardTitle>
-                                    <CardSubtitle>@special.Description</CardSubtitle>
-                                    <CardText class="price">@special.GetFormattedBasePrice()</CardText>
+                                    <CardTitle>@item.Name</CardTitle>
+                                    <CardSubtitle>@item.Description</CardSubtitle>
+                                    <CardText class="price">@item.GetFormattedBasePrice()</CardText>
+                                    <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">Show Options</Button>
+                                    <Button @onclick="@(() => OrderState.AddToWishList(item))">
+                                        <span class="iconify" data-icon="ant-design:heart-filled" data-inline="false"></span>
+                                    </Button>
                                 </CardBody>
-                        </Button>
                     </Card>
                 </Column>
             }
@@ -29,56 +59,35 @@
     }
 </div>
 
-<Sidebar Background="Background.Transparent" ThemeContrast="ThemeContrast.Light">
-    <SidebarContent>
-        <SidebarBrand>
-            Wish-List
-        </SidebarBrand>
-    @if (Order.Books.Any()) {
-        <SidebarItem>
-            @foreach (var configuredBook in Order.Books) {
-                <ConfiguredBookItem Book="configuredBook" OnRemoved="@(() => RemoveBook(configuredBook))" />
-            }
-        </SidebarItem>
-    }
 
-    <div class="order-total @(Order.Books.Any() ? "" : "hidden")">
-        Total:
-        <span class="total-price">@Order.GetFormattedTotalPrice()</span>
-        <a href="checkout">
-            <Button Color="Color.Warning" disabled="@(Order.Books.Count == 0)">
-            Order
-            </Button>
-        </a>
-    </div>
-    </SidebarContent>
-</Sidebar>
+
 
 <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
     <ConfigureBookDialog
-        Book="OrderState.ConfiguringBook"
+        BookCustom="OrderState.ConfiguringBook"
         OnCancel="OrderState.CancelConfigureBookDialog"
         OnConfirm="OrderState.ConfirmConfigureBookDialog" />
 </TemplatedDialog>
 
 @code {
     Sidebar sidebar;
-    SidebarSubItem mailSidebarSubItems;
-    SidebarSubItem appsSidebarSubItems;
 
     void ToggleSidebar(){
         sidebar.Toggle();
     }
     string search;
-    List<BookSpecial> specials;
+    List<BookBase> Bookbase;
     Order Order => OrderState.Order;
 
     protected async override Task OnInitializedAsync() {
-        specials = await HttpClient.GetJsonAsync<List<BookSpecial>>("specials");
+        Bookbase = await HttpClient.GetJsonAsync<List<BookBase>>("bookbase");
+        if(OrderState.Wish.Count == 0){
+            OrderState.GetFromLocalStorage();
+        }
     }
 
-    async Task RemoveBook(Book configuredBook) {
-        if (await JS.Confirm($"Remove {configuredBook.Special.Name} book from the order?")) {
+    async Task RemoveBook(BookCustom configuredBook) {
+        if (await JS.Confirm($"Remove {configuredBook.BookBase.Name} book from the order?")) {
             OrderState.RemoveConfiguredBook(configuredBook);
         }
     }

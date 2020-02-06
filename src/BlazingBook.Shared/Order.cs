@@ -12,7 +12,7 @@ namespace BlazingBook {
 
         public Address DeliveryAddress { get; set; } = new Address();
 
-        public List<Book> Books { get; set; } = new List<Book>();
+        public List<BookCustom> Books { get; set; } = new List<BookCustom>();
 
         public decimal GetTotalPrice() => Books.Sum(p => p.GetTotalPrice());
 

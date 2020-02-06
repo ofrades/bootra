@@ -5,18 +5,18 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
 namespace BlazingBook.Server {
-    [Route("specials")]
+    [Route("bookbase")]
     [ApiController]
-    public class SpecialsController : Controller {
+    public class BookBasesController : Controller {
         private readonly BookStoreContext _db;
 
-        public SpecialsController(BookStoreContext db) {
+        public BookBasesController(BookStoreContext db) {
             _db = db;
         }
 
         [HttpGet]
-        public async Task<ActionResult<List<BookSpecial>>> GetSpecials() {
-            return (await _db.Specials.ToListAsync()).OrderByDescending(s => s.BasePrice).ToList();
+        public async Task<ActionResult<List<BookBase>>> GetBookBases() {
+            return (await _db.BookBases.ToListAsync()).OrderByDescending(s => s.BasePrice).ToList();
         }
     }
 }
