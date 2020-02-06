@@ -1,0 +1,19 @@
+@inject OrderState OrderState
+@implements IDisposable
+
+<Button>
+    <a href="checkout">
+        <span class="iconify" data-icon="ant-design:shopping-cart-outlined" data-inline="true"></span>
+        <Badge IsPill="true">@basketCount</Badge>
+    </a>
+</Button>
+
+@code{
+    int basketCount => OrderState.Order.Books.Count();
+    protected override void OnParametersSet() {
+        OrderState.OnChange += StateHasChanged;
+    }
+    public void Dispose() {
+        OrderState.OnChange -= StateHasChanged;
+    }
+}
