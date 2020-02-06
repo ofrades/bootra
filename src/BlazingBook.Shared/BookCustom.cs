@@ -5,7 +5,7 @@ namespace BlazingBook {
     /// <summary>
     /// Represents a customized book as part of an order
     /// </summary>
-    public class Book {
+    public class BookCustom {
         public const int DefaultSize = 5;
         public const int MinimumSize = 4;
         public const int MaximumSize = 6;
@@ -14,16 +14,16 @@ namespace BlazingBook {
 
         public int OrderId { get; set; }
 
-        public BookSpecial Special { get; set; }
+        public BookBase BookBase { get; set; }
 
-        public int SpecialId { get; set; }
+        public int BookBaseId { get; set; }
 
         public int Size { get; set; }
 
         public List<BookExtra> Extras { get; set; }
 
         public decimal GetBasePrice() {
-            return ((decimal) Size / (decimal) DefaultSize) * Special.BasePrice;
+            return ((decimal) Size / (decimal) DefaultSize) * BookBase.BasePrice;
         }
 
         public decimal GetTotalPrice() {

@@ -1,18 +1,18 @@
 ﻿<div class="cart-item">
-    <a @onclick="OnRemoved" class="delete-item"><Button Color="Color.Danger">x</Button></a>
-    <div class="title">@(Book.Size)" @Book.Special.Name</div>
+    <a @onclick="OnRemoved" class="delete-item"><Button><span class="iconify" data-icon="ant-design:close-outlined" data-inline="false"></span></Button></a>
+    <div class="title">@(BookCustom.Size)" @BookCustom.BookBase.Name</div>
     <ul>
-        @foreach (var extra in Book.Extras)
+        @foreach (var item in BookCustom.Extras)
         {
-            <li>+ @extra.Extra.Name</li>
+            <li>+ @item.Extra.Name</li>
         }
     </ul>
     <div class="item-price">
-        @Book.GetFormattedTotalPrice()
+        @BookCustom.GetFormattedTotalPrice()
     </div>
 </div>
 
 @code {
-    [Parameter] public Book Book { get; set; }
+    [Parameter] public BookCustom BookCustom { get; set; }
     [Parameter] public EventCallback OnRemoved { get; set; }
 }

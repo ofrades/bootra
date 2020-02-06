@@ -1,15 +1,15 @@
 ﻿@inject HttpClient HttpClient
 
 <div class="dialog-title">
-    <h2>@Book.Special.Name</h2>
-    @Book.Special.Description
+    <h2>@BookCustom.BookBase.Name</h2>
+    @BookCustom.BookBase.Description
 </div>
 <form class="dialog-body">
     <div>
         <label>Size:</label>
-        <input type="range" min="@Book.MinimumSize" max="@Book.MaximumSize" step="1" @bind="Book.Size" @bind:event="oninput" />
+        <input type="range" min="@BookCustom.MinimumSize" max="@BookCustom.MaximumSize" step="1" @bind="BookCustom.Size" @bind:event="oninput" />
         <span class="size-label">
-            @(Book.Size)" (£@(Book.GetFormattedTotalPrice()))
+            @(BookCustom.Size)" (£@(BookCustom.GetFormattedTotalPrice()))
         </span>
     </div>
     <div>
@@ -20,7 +20,7 @@
                 <option>(loading...)</option>
             </select>
         }
-        else if (Book.Extras.Count >= 6)
+        else if (BookCustom.Extras.Count >= 6)
         {
             <div>(maximum reached)</div>
         }
@@ -37,12 +37,12 @@
     </div>
 
     <div class="extras">
-        @foreach (var extra in Book.Extras)
+        @foreach (var item in BookCustom.Extras)
         {
             <div class="extra">
-                @extra.Extra.Name
-                <span class="extra-price">@extra.Extra.GetFormattedPrice()</span>
-                <button type="button" class="delete-extra" @onclick="@(() => RemoveExtra(extra.Extra))">x</button>
+                @item.Extra.Name
+                <span class="extra-price">@item.Extra.GetFormattedPrice()</span>
+                <Button @onclick="@(() => RemoveExtra(item.Extra))"><span class="iconify" data-icon="ant-design:close-outlined" data-inline="false"></span></Button>
             </div>
         }
     </div>
@@ -51,7 +51,7 @@
 <div class="dialog-buttons">
     <button class="btn btn-secondary mr-auto" @onclick="@OnCancel">Cancel</button>
     <span class="mr-center">
-        Price: <span class="price">@(Book.GetFormattedTotalPrice())</span>
+        Price: <span class="price">@(BookCustom.GetFormattedTotalPrice())</span>
     </span>
     <button class="btn btn-success ml-auto" @onclick="@OnConfirm">Order ></button>
 </div>
@@ -59,7 +59,7 @@
 @code {
     List<Extra> extras;
 
-    [Parameter] public Book Book { get; set; }
+    [Parameter] public BookCustom BookCustom { get; set; }
     [Parameter] public EventCallback OnCancel { get; set; }
     [Parameter] public EventCallback OnConfirm { get; set; }
 
@@ -78,14 +78,14 @@
 
     void AddExtra(Extra extra)
     {
-        if (Book.Extras.Find(pt => pt.Extra == extra) == null)
+        if (BookCustom.Extras.Find(pt => pt.Extra == extra) == null)
         {
-            Book.Extras.Add(new BookExtra() { Extra = extra });
+            BookCustom.Extras.Add(new BookExtra() { Extra = extra });
         }
     }
 
     void RemoveExtra(Extra extra)
     {
-        Book.Extras.RemoveAll(pt => pt.Extra == extra);
+        BookCustom.Extras.RemoveAll(pt => pt.Extra == extra);
     }
 }
