@@ -1,0 +1,45 @@
+@page "/wish"
+@inject OrderState OrderState
+
+<div class="main">
+    <AuthorizeView Context="authContext">
+        <NotAuthorized>
+            <h2>Redirecting you...</h2>
+        </NotAuthorized>
+        <Authorized>
+            @if (OrderState.Wish.Any()) {
+                <Table>
+                    <TableHeader>
+                        <TableRow>
+                            <TableHeaderCell>Book Name</TableHeaderCell>
+                            <TableHeaderCell>Author</TableHeaderCell>
+                            <TableHeaderCell>Base Price</TableHeaderCell>
+                            <TableHeaderCell>Add to Basket</TableHeaderCell>
+                        </TableRow>
+                    </TableHeader>
+                    @foreach (var configuredBook in OrderState.Wish) {        
+                        <TableBody>
+                            <TableRow>
+                                <TableRowCell>@configuredBook.Name</TableRowCell>
+                                <TableRowCell>@configuredBook.Description</TableRowCell>
+                                <TableRowCell>@configuredBook.BasePrice</TableRowCell>
+                                <TableRowCell><Button @onclick="@(() => OrderState.ShowConfigureBookDialog(configuredBook))">+</Button></TableRowCell>
+                            </TableRow>
+                        </TableBody>
+                    }
+                </Table>
+            } else {
+                <div class="mx-auto">
+                    <h1>Empty Wish-List</h1>
+                    <Button><a href="/">Get Books</a></Button>
+                </div>
+            }
+            <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
+                <ConfigureBookDialog
+                    Book="OrderState.ConfiguringBook"
+                    OnCancel="OrderState.CancelConfigureBookDialog"
+                    OnConfirm="OrderState.ConfirmConfigureBookDialog" />
+            </TemplatedDialog>
+        </Authorized>
+    </AuthorizeView>
+</div>

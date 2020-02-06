@@ -1,0 +1,19 @@
+@inject OrderState OrderState
+@implements IDisposable
+
+<Button>
+    <a href="wish">
+        <span class="iconify" data-icon="ant-design:heart-filled" data-inline="true"></span>
+        <Badge IsPill="true">@wishCount</Badge>
+    </a>
+</Button>
+
+@code{
+    int wishCount => OrderState.Wish.Count();
+    protected override void OnParametersSet() {
+        OrderState.OnChange += StateHasChanged;
+    }
+    public void Dispose() {
+        OrderState.OnChange -= StateHasChanged;
+    }
+}

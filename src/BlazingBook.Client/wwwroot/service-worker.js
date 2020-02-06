@@ -14,7 +14,7 @@ self.addEventListener("push", event => {
   event.waitUntil(
     self.registration.showNotification("Blazing Book", {
       body: payload.message,
-      icon: "img/icon-512.png",
+      icon: "img/book-alt.png",
       vibrate: [100, 50, 100],
       data: { url: payload.url }
     })

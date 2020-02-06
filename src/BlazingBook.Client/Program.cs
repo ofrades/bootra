@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Blazored.LocalStorage;
 using Blazorise;
 using Blazorise.Material;
 using Microsoft.AspNetCore.Blazor.Hosting;
@@ -9,14 +10,15 @@ namespace BlazingBook.Client {
     public class Program {
         public static async Task Main(string[] args) {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            builder.Services.AddBlazoredLocalStorage();
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddScoped<OrderState>();
             builder.Services.AddBlazorise(options => {
-                options.ChangeTextOnKeyPress = true;
-            })
-            .AddMaterialProviders();
-            
+                    options.ChangeTextOnKeyPress = true;
+                })
+                .AddMaterialProviders();
+
             // Add auth services
             builder.Services.AddAuthorizationCore();
 

@@ -3,7 +3,7 @@
   "name": "Blazing Book",
   "icons": [
     {
-      "src": "img/icon-512.png",
+      "src": "img/book-alt.png",
       "type": "image/png",
       "sizes": "512x512"
     }
