@@ -1,4 +1,5 @@
 ﻿using System.Threading.Tasks;
+using Blazored.Localisation;
 using Blazored.LocalStorage;
 using Blazorise;
 using Blazorise.Material;
@@ -10,6 +11,7 @@ namespace BlazingBook.Client {
     public class Program {
         public static async Task Main(string[] args) {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
+            builder.Services.AddBlazoredLocalisation();
             builder.Services.AddBlazoredLocalStorage();
             builder.RootComponents.Add<App>("app");
 
@@ -25,7 +27,10 @@ namespace BlazingBook.Client {
             builder.Services.AddScoped<AuthenticationStateProvider, ServerAuthenticationStateProvider>();
             builder.Services.AddOptions();
 
-            await builder.Build().RunAsync();
+            var host = builder.Build();
+            host.InitializeBlazoredLocalization();
+
+            await host.RunAsync();
         }
     }
 }
