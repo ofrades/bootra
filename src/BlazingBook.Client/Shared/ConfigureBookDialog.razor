@@ -9,7 +9,7 @@
         <label>Size:</label>
         <input type="range" min="@BookCustom.MinimumSize" max="@BookCustom.MaximumSize" step="1" @bind="BookCustom.Size" @bind:event="oninput" />
         <span class="size-label">
-            @(BookCustom.Size)" (£@(BookCustom.GetFormattedTotalPrice()))
+            @(BookCustom.Size)" (@(BookCustom.GetFormattedTotalPrice()))
         </span>
     </div>
     <div>
@@ -30,7 +30,7 @@
                 <option value="-1" disabled selected>(select)</option>
                 @for (var i = 0; i < extras.Count; i++)
                 {
-                    <option value="@i">@extras[i].Name - (£@(extras[i].GetFormattedPrice()))</option>
+                    <option value="@i">@extras[i].Name - (@(extras[i].GetFormattedPrice()))</option>
                 }
             </select>
         }

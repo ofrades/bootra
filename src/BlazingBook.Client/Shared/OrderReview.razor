@@ -4,7 +4,7 @@
         <strong>
             @(book.Size)"
             @book.BookBase.Name
-            (£@book.GetFormattedTotalPrice())
+            (@book.GetFormattedTotalPrice())
         </strong>
     </p>
 
@@ -19,7 +19,7 @@
 <p>
     <strong>
         Total price:
-        £@Order.GetFormattedTotalPrice()
+        @Order.GetFormattedTotalPrice()
     </strong>
 </p>
 

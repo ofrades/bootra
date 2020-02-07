@@ -36,7 +36,6 @@ form {
 }
 
 .price::before {
-  content: "£";
   font-weight: 300;
   font-size: 1.2rem;
   margin-right: 0.2rem;
@@ -137,7 +136,6 @@ form {
 }
 
 .item-price::before {
-  content: "£";
   font-weight: 100;
   margin-right: 0.3rem;
 }
@@ -282,10 +280,6 @@ form {
 .dialog .extra-price {
   font-weight: 100;
   font-size: 0.8rem;
-}
-
-.dialog .extra-price::before {
-  content: "£";
 }
 
 .delete-extra {

@@ -16,7 +16,7 @@
         "username": "sa"
       },
       {
-        "database": "${workspaceFolder:blazingbook}/src/BlazingBook.Server/book.db",
+        "database": "${workspaceFolder:blazingbook}/src/BlazingBook.Server/bootra.db",
         "dialect": "SQLite",
         "name": "BlazingBook"
       }
