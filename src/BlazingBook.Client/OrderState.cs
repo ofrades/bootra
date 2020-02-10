@@ -1,20 +1,21 @@
 ﻿using System;
 using System.Collections.Generic;
-using Blazored.LocalStorage;
+using System.Linq;
+using System.Net.Http;
+using System.Threading.Tasks;
+using Microsoft.AspNetCore.Components;
 
 namespace BlazingBook.Client {
     public class OrderState {
-        private readonly ILocalStorageService _localStorage;
-        public OrderState(ILocalStorageService localStorage) {
-            _localStorage = localStorage;
+        private readonly HttpClient _httpClient;
+        public OrderState(HttpClient HttpClient) {
+            _httpClient = HttpClient;
         }
         public event Action OnChange;
         public bool ShowingConfigureDialog { get; private set; }
-
         public BookCustom ConfiguringBook { get; private set; }
-
         public Order Order { get; private set; } = new Order();
-        public List<BookBase> Wish { get; set; } = new List<BookBase>();
+        public List<Wish> WishList { get; set; } = new List<Wish>();
 
         public void ShowConfigureBookDialog(BookBase bookbase) {
             ConfiguringBook = new BookCustom() {
@@ -27,35 +28,49 @@ namespace BlazingBook.Client {
             ShowingConfigureDialog = true;
         }
 
-        public void AddToWishList(BookBase book) {
-            Wish.Add(book);
-            _localStorage.SetItemAsync("wish", book);
+        public async Task AddToWishList(BookBase book) {
+            if (WishList.Any(x => x.BookId == book.Id)) {
+                // TODO: Toast Wish already exists
+                return;
+            } else {
+                var fakeWish = new Wish { Id = -1, BookId = book.Id, Book = book, UserId = ""};
+                try {
+                    WishList.Add(fakeWish);
+                    NotifyStateChanged();
+                    var wishCreate = new WishCreate { BookId = book.Id };
+                    var res = await _httpClient.PostJsonAsync<Wish>("wishes", wishCreate);
+                    fakeWish.Id = res.Id;
+                    fakeWish.UserId = res.UserId;
+                } catch (HttpRequestException) {
+                    // TODO: Toast Wish not saved
+                    WishList.Remove(fakeWish);
+                }
+                NotifyStateChanged();
+            }
+        }
+
+        public async Task GetWishes() {
+            WishList = await _httpClient.GetJsonAsync<List<Wish>>("wishes");
             NotifyStateChanged();
         }
 
-        public async void GetFromLocalStorage() {
-            var wish = await _localStorage.GetItemAsync<BookBase>("wish");
-            var basket = await _localStorage.GetItemAsync<BookCustom>("basket");
-            Wish.Clear();
-            Wish.Add(wish);
-            Order.Books.Clear();
-            Order.Books.Add(basket);
-            NotifyStateChanged();
-        }
-        public void RemoveFromWishList(BookBase book) {
-            Wish.Remove(book);
+        public async Task RemoveFromWishList(int id) {
+            await _httpClient.DeleteAsync($"wishes/{id}");
+            await GetWishes();
             NotifyStateChanged();
         }
 
         public void CancelConfigureBookDialog() {
             ConfiguringBook = null;
-
             ShowingConfigureDialog = false;
         }
 
-        public void ConfirmConfigureBookDialog() {
+        public async Task ConfirmConfigureBookDialog() {
             Order.Books.Add(ConfiguringBook);
-            _localStorage.SetItemAsync("basket", ConfiguringBook);
+            if (WishList.Any(c => c.BookId == ConfiguringBook.BookBase.Id)) {
+                await RemoveFromWishList(WishList.Where(c => c.BookId == ConfiguringBook.BookBase.Id).Select(c => c.Id).Single());
+            }
+            // var basket = await _localStorage.GetItemAsync<BookCustom>("basket");
             NotifyStateChanged();
 
             ConfiguringBook = null;

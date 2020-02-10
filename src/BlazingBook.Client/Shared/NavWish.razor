@@ -9,7 +9,8 @@
 </Button>
 
 @code{
-    int wishCount => OrderState.Wish.Count();
+    int wishCount => OrderState.WishList.Count();
+
     protected override void OnParametersSet() {
         OrderState.OnChange += StateHasChanged;
     }

@@ -1,9 +1,11 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
+@implements IDisposable
 @inject IJSRuntime IJSRuntime
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
+@inject Blazored.Localisation.Services.IBrowserDateTimeProvider browserDateTimeProvider
 
 @if (Order.Books.Any()) {
 <Sidebar @ref="sidebar">
@@ -36,30 +38,30 @@
     <Column ColumnSize="ColumnSize.Is4" Class="text-center">
         <TextEdit Placeholder="Search..." @bind-Text="@search"/>
     </Column>
-    @if (Bookbase != null) {
+    @if (Bookbases != null) {
         <CardGroup>
-            @foreach (var item in Bookbase){
-                <Column ColumnSize="ColumnSize.Is4.OnTablet.Is3.OnWidescreen.Is12.OnMobile">
-                    <Card Margin="Margin.Is4.OnY">
-                            <CardImage src="@item.ImageUrl">
-                            </CardImage>
-                                <CardBody>
-                                    <CardTitle>@item.Name</CardTitle>
-                                    <CardSubtitle>@item.Description</CardSubtitle>
-                                    <CardText class="price">@item.GetFormattedBasePrice()</CardText>
-                                    <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">Show Options</Button>
-                                    <Button @onclick="@(() => OrderState.AddToWishList(item))">
-                                        <span class="iconify" data-icon="ant-design:heart-filled" data-inline="false"></span>
-                                    </Button>
-                                </CardBody>
-                    </Card>
-                </Column>
+            @foreach (var item in Bookbases){
+            <Column ColumnSize="ColumnSize.Is4.OnTablet.Is3.OnWidescreen.Is12.OnMobile">
+                <Card Margin="Margin.Is4.OnY">
+                        <CardImage src="@item.ImageUrl">
+                        </CardImage>
+                        <CardBody>
+                            <CardTitle>@item.Name</CardTitle>
+                            <CardSubtitle>@item.Description</CardSubtitle>
+                            <CardText class="price">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol @item.GetFormattedBasePrice()</CardText>
+                            <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">
+                                <span class="iconify" data-icon="ant-design:shopping-cart-outlined" data-inline="true"></span>
+                            </Button>
+                            <Button @onclick="@(() => OrderState.AddToWishList(item))">
+                                <span class="iconify" data-icon="ant-design:heart@(OrderState.WishList.Any(wishlist => wishlist.BookId == item.Id) ? "-filled" : "")" data-inline="false"></span>
+                            </Button>
+                        </CardBody>
+                </Card>
+            </Column>
             }
         </CardGroup>
     }
 </div>
-
-
 
 
 <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
@@ -71,19 +73,23 @@
 
 @code {
     Sidebar sidebar;
-
     void ToggleSidebar(){
         sidebar.Toggle();
     }
     string search;
-    List<BookBase> Bookbase;
+    List<BookBase> Bookbases;
     Order Order => OrderState.Order;
 
     protected async override Task OnInitializedAsync() {
-        Bookbase = await HttpClient.GetJsonAsync<List<BookBase>>("bookbase");
-        if(OrderState.Wish.Count == 0){
-            OrderState.GetFromLocalStorage();
-        }
+        Bookbases = await HttpClient.GetJsonAsync<List<BookBase>>("bookbase");
+        await OrderState.GetWishes();
+    }
+
+    protected override void OnParametersSet() {
+        OrderState.OnChange += StateHasChanged;
+    }
+    public void Dispose() {
+        OrderState.OnChange -= StateHasChanged;
     }
 
     async Task RemoveBook(BookCustom configuredBook) {

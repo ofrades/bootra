@@ -1,4 +1,6 @@
-﻿namespace BlazingBook {
+﻿using System.Collections.Generic;
+
+namespace BlazingBook {
     /// <summary>
     /// Represents a pre-configured template for a book a user can order
     /// </summary>

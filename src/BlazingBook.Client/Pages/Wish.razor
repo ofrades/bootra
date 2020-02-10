@@ -2,12 +2,7 @@
 @inject OrderState OrderState
 
 <div class="main">
-    <AuthorizeView Context="authContext">
-        <NotAuthorized>
-            <h2>Redirecting you...</h2>
-        </NotAuthorized>
-        <Authorized>
-            @if (OrderState.Wish.Any()) {
+            @if (OrderState.WishList.Any()) {
                 <Table>
                     <TableHeader>
                         <TableRow>
@@ -15,15 +10,21 @@
                             <TableHeaderCell>Author</TableHeaderCell>
                             <TableHeaderCell>Base Price</TableHeaderCell>
                             <TableHeaderCell>Add to Basket</TableHeaderCell>
+                            <TableHeaderCell>Remove</TableHeaderCell>
                         </TableRow>
                     </TableHeader>
-                    @foreach (var configuredBook in OrderState.Wish) {        
+                    @foreach (var wishList in OrderState.WishList) {        
                         <TableBody>
                             <TableRow>
-                                <TableRowCell>@configuredBook.Name</TableRowCell>
-                                <TableRowCell>@configuredBook.Description</TableRowCell>
-                                <TableRowCell>@configuredBook.BasePrice</TableRowCell>
-                                <TableRowCell><Button @onclick="@(() => OrderState.ShowConfigureBookDialog(configuredBook))">+</Button></TableRowCell>
+                                <TableRowCell>@wishList.Book.Name</TableRowCell>
+                                <TableRowCell>@wishList.Book.Description</TableRowCell>
+                                <TableRowCell>@wishList.Book.BasePrice</TableRowCell>
+
+                                    <TableRowCell><Button @onclick="@(() => OrderState.ShowConfigureBookDialog(wishList.Book))">+</Button></TableRowCell>
+                                
+                                @if(wishList.Id != -1) {
+                                    <TableRowCell><Button @onclick="@(() => OrderState.RemoveFromWishList(wishList.Id))">x</Button></TableRowCell>
+                                }
                             </TableRow>
                         </TableBody>
                     }
@@ -36,10 +37,21 @@
             }
             <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
                 <ConfigureBookDialog
-                    Book="OrderState.ConfiguringBook"
+                    BookCustom="OrderState.ConfiguringBook"
                     OnCancel="OrderState.CancelConfigureBookDialog"
                     OnConfirm="OrderState.ConfirmConfigureBookDialog" />
             </TemplatedDialog>
-        </Authorized>
-    </AuthorizeView>
 </div>
+
+@code{
+
+    protected async override Task OnInitializedAsync() {
+        await OrderState.GetWishes();
+    }
+    protected override void OnParametersSet() {
+        OrderState.OnChange += StateHasChanged;
+    }
+    public void Dispose() {
+        OrderState.OnChange -= StateHasChanged;
+    }
+}
