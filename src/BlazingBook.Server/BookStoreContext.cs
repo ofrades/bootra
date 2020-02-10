@@ -7,6 +7,8 @@ namespace BlazingBook.Server {
         public BookStoreContext(DbContextOptions options) : base(options) { }
 
         public DbSet<Order> Orders { get; set; }
+        
+        public DbSet<Wish> Wishes { get; set; }
 
         public DbSet<BookCustom> BookCustoms { get; set; }
 

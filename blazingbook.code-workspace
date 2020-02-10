@@ -18,6 +18,8 @@
       {
         "database": "${workspaceFolder:blazingbook}/src/BlazingBook.Server/bootra.db",
         "dialect": "SQLite",
+        "isActive": false,
+        "isConnected": false,
         "name": "BlazingBook"
       }
     ],
