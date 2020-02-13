@@ -23,7 +23,7 @@
 </div>
 
 <div class="form-field">
-    <label>Region:</label>
+    <label>Country:</label>
     <div>
         <InputText @bind-Value="@Address.Country" />
         <ValidationMessage For="@(() => Address.Country)" />
@@ -43,6 +43,14 @@
     <div>
         <InputText @bind-Value="@Address.PostalCode" />
         <ValidationMessage For="@(() => Address.PostalCode)" />
+    </div>
+</div>
+
+<div class="form-field">
+    <label>Email:</label>
+    <div>
+        <InputText @bind-Value="@Address.Email" />
+        <ValidationMessage For="@(() => Address.Email)" />
     </div>
 </div>
 

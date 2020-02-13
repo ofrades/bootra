@@ -3,9 +3,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text.Json;
 using System.Threading.Tasks;
+using IronPdf;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Scriban;
+using SendGrid;
+using SendGrid.Helpers.Mail;
 using WebPush;
 
 namespace BlazingBook.Server {
@@ -14,9 +19,10 @@ namespace BlazingBook.Server {
     [Authorize]
     public class OrdersController : Controller {
         private readonly BookStoreContext _db;
-
-        public OrdersController(BookStoreContext db) {
+        private readonly IConfiguration _config;
+        public OrdersController(BookStoreContext db, IConfiguration config) {
             _db = db;
+            _config = config;
         }
 
         [HttpGet]
@@ -82,26 +88,30 @@ namespace BlazingBook.Server {
             return HttpContext.User.FindFirst("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name")?.Value;
         }
 
-        private static async Task TrackAndSendNotificationsAsync(Order order, NotificationSubscription subscription) {
+        private async Task TrackAndSendNotificationsAsync(Order order, NotificationSubscription subscription) {
             // In a realistic case, some other backend process would track
             // order delivery progress and send us notifications when it
             // changes. Since we don't have any such process here, fake it.
             await Task.Delay(OrderWithStatus.PreparationDuration);
             await SendNotificationAsync(order, subscription, "Your order has been dispatched!");
+            await ExecuteEmail(order, "Your order has been dispatched!");
 
             await Task.Delay(OrderWithStatus.DeliveryDuration);
             await SendNotificationAsync(order, subscription, "Your order is now delivered. Enjoy!");
+            await ExecuteEmail(order, "Your order is now delivered. Enjoy!");
         }
 
-        private static async Task SendNotificationAsync(Order order, NotificationSubscription subscription, string message) {
+        private async Task SendNotificationAsync(Order order, NotificationSubscription subscription, string message) {
             // For a real application, generate your own
-            var publicKey = "BLC8GOevpcpjQiLkO7JmVClQjycvTCYWm6Cq_a7wJZlstGTVZvwGFFHMYfXt6Njyvgx_GlXJeo5cSiZ1y4JOx1o";
-            var privateKey = "OrubzSz3yWACscZXjFQrrtDwCKg-TGFuWhluQ2wLXDo";
+            var publicKey = _config["Notification:publicKey"];
+            var privateKey = _config["Notification:privateKey"];
+            var subject = _config["Notification:subject"];
 
             var pushSubscription = new PushSubscription(subscription.Url, subscription.P256dh, subscription.Auth);
-            var vapidDetails = new VapidDetails("mailto:<someone@example.com>", publicKey, privateKey);
+            var vapidDetails = new VapidDetails(subject, publicKey, privateKey);
             var webPushClient = new WebPushClient();
             try {
+
                 var payload = JsonSerializer.Serialize(new {
                     message,
                     url = $"myorders/{order.OrderId}",
@@ -110,6 +120,24 @@ namespace BlazingBook.Server {
             } catch (Exception ex) {
                 Console.Error.WriteLine("Error sending push notification: " + ex.Message);
             }
+        }
+        private async Task ExecuteEmail(Order order, string message) {      
+            var file = await System.IO.File.ReadAllTextAsync("template.sbn");
+            var template = Template.Parse(file);
+            var result = template.Render(order, memberInfo => memberInfo.Name);
+            var Renderer = new HtmlToPdf();
+            var pdfFromString = (await Renderer.RenderHtmlAsPdfAsync(result)).BinaryData;
+            var fileFromUrl = Convert.ToBase64String(pdfFromString);
+            var apiKey = _config["SendGrid:apiKey"];
+            var client = new SendGridClient(apiKey);
+            var from = new EmailAddress(_config["SendGrid:emailFrom"], _config["SendGrid:nameFrom"]);
+            var subject = message;
+            var to = new EmailAddress(order.DeliveryAddress.Email, order.DeliveryAddress.Name);
+            var plainTextContent = "";
+            var htmlContent = "<h1>From BOOTRA:</h1><br><strong>Your order PDF is attached!</strong>";
+            var msg = MailHelper.CreateSingleEmail(from, to, subject, plainTextContent, htmlContent);
+            msg.AddAttachment($"{order.UserId}{order.OrderId}.pdf", fileFromUrl);
+            var response = await client.SendEmailAsync(msg);
         }
     }
 }
