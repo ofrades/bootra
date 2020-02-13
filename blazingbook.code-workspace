@@ -7,15 +7,6 @@
   "settings": {
     "sqltools.connections": [
       {
-        "database": "Microsoft.eShopOnWeb.CatalogDb",
-        "dialect": "MSSQL",
-        "name": "eshop",
-        "password": "Ofrades12345",
-        "port": 1433,
-        "server": "localhost",
-        "username": "sa"
-      },
-      {
         "database": "${workspaceFolder:blazingbook}/src/BlazingBook.Server/bootra.db",
         "dialect": "SQLite",
         "isActive": false,

@@ -9,6 +9,7 @@
   <ItemGroup>
     <PackageReference Include="Blazored.Localisation" Version="2.0.0" />
     <PackageReference Include="Blazored.LocalStorage" Version="2.1.1" />
+    <PackageReference Include="Sotsera.Blazor.Toaster" Version="3.0.0" />
 
     <PackageReference Include="Blazorise" Version="0.8.8.2" />
     <PackageReference Include="Blazorise.Material" Version="0.8.8.2" />

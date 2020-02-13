@@ -1,0 +1,14 @@
+    <h2>Hello {{ DeliveryAddress.Name }},</h2>
+    <p>Your Order with the ID {{ OrderId }} was shipped</p>
+    <ul id='order'>
+        <li>
+            Order created at: {{ CreatedTime }}
+        </li>
+        <li>
+            Price: {{ GetFormattedTotalPrice() }}
+        </li>
+        <li>
+            To Address: {{ DeliveryAddress.Line1 }}, {{ DeliveryAddress.City }}, {{ DeliveryAddress.Country }}
+        </li>
+    </ul>
+    <h3> Enjoy your book, kind regards from BOOTRA</h3>

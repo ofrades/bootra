@@ -1,4 +1,15 @@
-﻿body,
+﻿
+.heart-filled{
+  content: url('https://api.iconify.design/ant-design:heart-filled.svg?height=16');
+  vertical-align: -0.125em;
+}
+
+.heart{
+  content: url('https://api.iconify.design/ant-design:heart.svg?height=16');
+  vertical-align: -0.125em;
+}
+
+body,
 html {
   font-family: 'Roboto', sans-serif;
 }

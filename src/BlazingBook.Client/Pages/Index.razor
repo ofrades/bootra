@@ -38,9 +38,9 @@
     <Column ColumnSize="ColumnSize.Is4" Class="text-center">
         <TextEdit Placeholder="Search..." @bind-Text="@search"/>
     </Column>
-    @if (Bookbases != null) {
+    @if (OrderState.Bookbases != null) {
         <CardGroup>
-            @foreach (var item in Bookbases){
+            @foreach (var item in OrderState.Bookbases){
             <Column ColumnSize="ColumnSize.Is4.OnTablet.Is3.OnWidescreen.Is12.OnMobile">
                 <Card Margin="Margin.Is4.OnY">
                         <CardImage src="@item.ImageUrl">
@@ -53,7 +53,7 @@
                                 <span class="iconify" data-icon="ant-design:shopping-cart-outlined" data-inline="true"></span>
                             </Button>
                             <Button @onclick="@(() => OrderState.AddToWishList(item))">
-                                <span class="iconify" data-icon="ant-design:heart@(OrderState.WishList.Any(wishlist => wishlist.BookId == item.Id) ? "-filled" : "")" data-inline="false"></span>
+                                <span class="@(OrderState.WishList.Any(w => w.BookId == item.Id) ? "heart-filled" : "heart")"></span>
                             </Button>
                         </CardBody>
                 </Card>
@@ -77,11 +77,9 @@
         sidebar.Toggle();
     }
     string search;
-    List<BookBase> Bookbases;
     Order Order => OrderState.Order;
-
     protected async override Task OnInitializedAsync() {
-        Bookbases = await HttpClient.GetJsonAsync<List<BookBase>>("bookbase");
+        OrderState.Bookbases = await HttpClient.GetJsonAsync<List<BookBase>>("bookbase");
         await OrderState.GetWishes();
     }
 

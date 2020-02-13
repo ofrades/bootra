@@ -6,6 +6,7 @@ using Blazorise.Material;
 using Microsoft.AspNetCore.Blazor.Hosting;
 using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
+using Sotsera.Blazor.Toaster.Core.Models;
 
 namespace BlazingBook.Client {
     public class Program {
@@ -13,6 +14,12 @@ namespace BlazingBook.Client {
             var builder = WebAssemblyHostBuilder.CreateDefault(args);
             builder.Services.AddBlazoredLocalisation();
             builder.Services.AddBlazoredLocalStorage();
+            builder.Services.AddToaster(config => {
+                //example customizations
+                config.PositionClass = Defaults.Classes.Position.TopRight;
+                config.PreventDuplicates = true;
+                config.NewestOnTop = false;
+            });
             builder.RootComponents.Add<App>("app");
 
             builder.Services.AddScoped<OrderState>();
