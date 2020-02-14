@@ -3,8 +3,8 @@ using System.Collections.Generic;
 
 namespace BlazingBook {
     public class OrderWithStatus {
-        public readonly static TimeSpan PreparationDuration = TimeSpan.FromSeconds(10);
-        public readonly static TimeSpan DeliveryDuration = TimeSpan.FromMinutes(1); // Unrealistic, but more interesting to watch
+        public readonly static TimeSpan PreparationDuration = TimeSpan.FromSeconds(5);
+        public readonly static TimeSpan DeliveryDuration = TimeSpan.FromSeconds(10); // Unrealistic, but more interesting to watch
 
         public Order Order { get; set; }
 
