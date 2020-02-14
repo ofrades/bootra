@@ -1,6 +1,9 @@
-﻿using System.Threading.Tasks;
+﻿using System.Linq;
+using System.Security.Claims;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.Twitter;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -14,7 +17,13 @@ namespace BlazingBook.Server {
         [HttpGet("user")]
         public UserInfo GetUser() {
             return User.Identity.IsAuthenticated
-                ? new UserInfo { Name = User.Identity.Name, IsAuthenticated = true }
+                ? new UserInfo {
+                    Name = User.Identity.Name,
+                        Email = User.Claims.Where(c => c.Type == ClaimTypes.Email).Select(c => c.Value).FirstOrDefault(),
+                        Picture = User.FindFirst("urn:google:image").Value,
+                        Locale = User.FindFirst("urn:google:locale").Value,
+                        IsAuthenticated = true
+                }
                 : LoggedOutUser;
         }
 
@@ -25,7 +34,7 @@ namespace BlazingBook.Server {
             }
 
             await HttpContext.ChallengeAsync(
-                TwitterDefaults.AuthenticationScheme,
+                GoogleDefaults.AuthenticationScheme,
                 new AuthenticationProperties { RedirectUri = redirectUri });
         }
 

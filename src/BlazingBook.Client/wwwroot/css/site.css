@@ -9,6 +9,16 @@
   vertical-align: -0.125em;
 }
 
+.shopping-filled{
+  content: url('https://api.iconify.design/ant-design:shopping-filled.svg?height=16');
+  vertical-align: -0.125em;
+}
+
+.shopping{
+  content: url('https://api.iconify.design/ant-design:shopping.svg?height=16');
+  vertical-align: -0.125em;
+}
+
 body,
 html {
   font-family: 'Roboto', sans-serif;

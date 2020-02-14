@@ -50,7 +50,7 @@
                             <CardSubtitle>@item.Description</CardSubtitle>
                             <CardText class="price">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol @item.GetFormattedBasePrice()</CardText>
                             <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">
-                                <span class="iconify" data-icon="ant-design:shopping-cart-outlined" data-inline="true"></span>
+                                <span class="@(OrderState.Order.Books.Select(w => w.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
                             </Button>
                             <Button @onclick="@(() => OrderState.AddToWishList(item))">
                                 <span class="@(OrderState.WishList.Any(w => w.BookId == item.Id) ? "heart-filled" : "heart")"></span>
