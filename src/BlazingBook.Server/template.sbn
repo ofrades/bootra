@@ -5,7 +5,7 @@
             Order created at: {{ CreatedTime }}
         </li>
         <li>
-            Price: {{ GetFormattedTotalPrice() }}
+            Price: {{ TotalPrice }}
         </li>
         <li>
             To Address: {{ DeliveryAddress.Line1 }}, {{ DeliveryAddress.City }}, {{ DeliveryAddress.Country }}

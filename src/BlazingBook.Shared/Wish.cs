@@ -11,5 +11,6 @@ namespace BlazingBook {
     public class WishCreate {
         public int BookId { get; set; }
         public string UserId { get; set; }
+        public BookBase Book { get; set; } = new BookBase();
     }
 }

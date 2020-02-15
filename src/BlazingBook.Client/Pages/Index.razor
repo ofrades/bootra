@@ -35,9 +35,37 @@
 }
 
 <div class="main">
-    <Column ColumnSize="ColumnSize.Is4" Class="text-center">
-        <TextEdit Placeholder="Search..." @bind-Text="@search"/>
+    <Column ColumnSize="ColumnSize.Is4" Class="text-center mx-auto">
+        <TextEdit Placeholder="Search..." @bind-Text="@search"  @onblur="() => OrderState.SearchBooks(search)"/>
     </Column>
+
+    @if (OrderState.BooksApi != null) {
+            <Table Margin="Margin.Is4.OnY">
+                <TableHeader>
+                    <TableRow>
+                        <TableHeaderCell>Title</TableHeaderCell>
+                        <TableHeaderCell>Author</TableHeaderCell>
+                        <TableHeaderCell>Language</TableHeaderCell>
+                        <TableHeaderCell>Downloads</TableHeaderCell>
+                        <TableHeaderCell>Fav</TableHeaderCell>
+                    </TableRow>
+                </TableHeader>
+            @foreach(var item in OrderState.BooksApi.Results){
+                <TableBody>
+                    <TableRow>
+                        <TableRowCell>@item.Title</TableRowCell>
+                        <TableRowCell>@item.Authors.Select(c => c.Name).FirstOrDefault()</TableRowCell>
+                        <TableRowCell>@item.Languages.FirstOrDefault()</TableRowCell>
+                        <TableRowCell>@item.DownloadCount</TableRowCell>
+                        <TableRowCell>
+                            <Button @onclick="@(() => OrderState.AddToWishList(null, item))">
+                                <span class="@(OrderState.WishList.Any(w => w.BookId == item.Id) ? "heart-filled" : "heart")"></span>
+                            </Button></TableRowCell>
+                    </TableRow>
+                </TableBody>
+            }
+            </Table>
+    }
     @if (OrderState.Bookbases != null) {
         <CardGroup>
             @foreach (var item in OrderState.Bookbases){
@@ -46,13 +74,13 @@
                         <CardImage src="@item.ImageUrl">
                         </CardImage>
                         <CardBody>
-                            <CardTitle>@item.Name</CardTitle>
-                            <CardSubtitle>@item.Description</CardSubtitle>
+                            <CardTitle>@item.Title</CardTitle>
+                            <CardSubtitle>@item.Author</CardSubtitle>
                             <CardText class="price">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol @item.GetFormattedBasePrice()</CardText>
                             <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">
                                 <span class="@(OrderState.Order.Books.Select(w => w.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
                             </Button>
-                            <Button @onclick="@(() => OrderState.AddToWishList(item))">
+                            <Button @onclick="@(() => OrderState.AddToWishList(item, null))">
                                 <span class="@(OrderState.WishList.Any(w => w.BookId == item.Id) ? "heart-filled" : "heart")"></span>
                             </Button>
                         </CardBody>
@@ -79,6 +107,7 @@
     string search;
     Order Order => OrderState.Order;
     protected async override Task OnInitializedAsync() {
+        OrderState.OnChange += StateHasChanged;
         OrderState.Bookbases = await HttpClient.GetJsonAsync<List<BookBase>>("bookbase");
         await OrderState.GetWishes();
     }
@@ -91,7 +120,7 @@
     }
 
     async Task RemoveBook(BookCustom configuredBook) {
-        if (await JS.Confirm($"Remove {configuredBook.BookBase.Name} book from the order?")) {
+        if (await JS.Confirm($"Remove {configuredBook.BookBase.Title} book from the order?")) {
             OrderState.RemoveConfiguredBook(configuredBook);
         }
     }

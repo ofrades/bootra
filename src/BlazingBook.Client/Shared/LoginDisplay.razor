@@ -3,11 +3,16 @@
         <text>...</text>
     </Authorizing>
     <Authorized>
+        @{
+            string pictureUrl = context.User.Claims.Where(c => c.Type == "Picture").Select(c => c.Value).FirstOrDefault();
+        }
         <Button>
-            <span>@context.User.Claims.Where(c => c.Type == "Locale").Select(c => c.Value).FirstOrDefault()</span>
-            <img src="@context.User.Claims.Where(c => c.Type == "Picture").Select(c => c.Value).FirstOrDefault()" height="25px">
-            <span>@context.User.Identity.Name</span>
-            <span class="iconify" data-icon="ant-design:user-outlined" data-inline="true"></span>
+            <img src="@pictureUrl" height="25px" style="border-radius: 50%" alt="picture">
+        </Button>
+        <Button>
+            <span alt="Name">@context.User.Identity.Name</span>
+        </Button>
+        <Button>
             <a href="user/signout">Sign out</a>
         </Button>
     </Authorized>

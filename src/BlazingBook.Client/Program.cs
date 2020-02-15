@@ -16,8 +16,9 @@ namespace BlazingBook.Client {
             builder.Services.AddBlazoredLocalStorage();
             builder.Services.AddToaster(config => {
                 //example customizations
-                config.PositionClass = Defaults.Classes.Position.TopRight;
+                config.PositionClass = Defaults.Classes.Position.TopCenter;
                 config.PreventDuplicates = true;
+                config.VisibleStateDuration = 2000;
                 config.NewestOnTop = false;
             });
             builder.RootComponents.Add<App>("app");
