@@ -56,6 +56,7 @@ namespace BlazingBook.Server {
         [HttpPost]
         public async Task<ActionResult<int>> PlaceOrder(Order order) {
             order.CreatedTime = DateTime.Now;
+            order.TotalPrice = order.GetFormattedTotalPrice();
             order.UserId = GetUserId();
 
             // Enforce existence of Book.BookBaseId and Extra.ExtraId

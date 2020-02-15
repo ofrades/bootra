@@ -1,6 +1,6 @@
 ﻿<div class="cart-item">
     <a @onclick="OnRemoved" class="delete-item"><Button><span class="iconify" data-icon="ant-design:close-outlined" data-inline="false"></span></Button></a>
-    <div class="title">@(BookCustom.Size)" @BookCustom.BookBase.Name</div>
+    <div class="title">@(BookCustom.Size)" @BookCustom.BookBase.Title</div>
     <ul>
         @foreach (var item in BookCustom.Extras)
         {

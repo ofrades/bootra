@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
+using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Sotsera.Blazor.Toaster;
@@ -22,7 +23,19 @@ namespace BlazingBook.Client {
         public Order Order { get; private set; } = new Order();
         public List<Wish> WishList { get; set; } = new List<Wish>();
         public List<BookBase> Bookbases { get; set; }
-        public async Task AddToWishList(BookBase book) {
+        public Root BooksApi { get; set; }
+        public Result ResultApi { get; set; }
+        public List<Author> Author { get; set; }
+        public async Task AddToWishList(BookBase book = null, Result resultApi = null) {
+            if (book == null) {
+                book = new BookBase {
+                Author = resultApi.Authors.Select(c => c.Name).SingleOrDefault(),
+                BasePrice = 12.00m,
+                Id = resultApi.Id,
+                ImageUrl = "",
+                Title = resultApi.Title
+                };
+            }
             if (WishList.Any(x => x.BookId == book.Id)) {
                 _toaster.Info("Already Wished");
                 // TODO: Toast Wish already exists in basket
@@ -33,12 +46,11 @@ namespace BlazingBook.Client {
                 try {
                     WishList.Add(fakeWish);
                     NotifyStateChanged();
-                    var wishCreate = new WishCreate { BookId = book.Id };
+                    var wishCreate = new WishCreate { BookId = book.Id, Book = book };
                     var res = await _httpClient.PostJsonAsync<Wish>("wishes", wishCreate);
                     fakeWish.Id = res.Id;
                     fakeWish.UserId = res.UserId;
                 } catch (HttpRequestException) {
-                    // TODO: Toast Wish not saved
                     _toaster.Warning("Not Saved");
                     WishList.Remove(fakeWish);
                 }
@@ -47,12 +59,20 @@ namespace BlazingBook.Client {
         }
 
         public async Task GetWishes() {
-            WishList = await _httpClient.GetJsonAsync<List<Wish>>("wishes");
-            NotifyStateChanged();
+            try {
+                WishList = await _httpClient.GetJsonAsync<List<Wish>>("wishes");
+                NotifyStateChanged();
+            } catch (HttpRequestException ex) {
+                throw ex;
+            }
         }
 
         public async Task RemoveFromWishList(int id) {
-            await _httpClient.DeleteAsync($"wishes/{id}");
+            try {
+                await _httpClient.DeleteAsync($"wishes/{id}");
+            } catch (HttpRequestException ex) {
+                throw ex;
+            }
             await GetWishes();
             NotifyStateChanged();
         }
@@ -77,7 +97,6 @@ namespace BlazingBook.Client {
             }
             // var basket = await _localStorage.GetItemAsync<BookCustom>("basket");
             NotifyStateChanged();
-
             ConfiguringBook = null;
             ShowingConfigureDialog = false;
         }
@@ -93,6 +112,15 @@ namespace BlazingBook.Client {
 
         public void ReplaceOrder(Order order) {
             Order = order;
+        }
+        public async Task SearchBooks(string search) {
+            try {
+                BooksApi = await _httpClient.GetJsonAsync<Root>($"http://gutendex.com/books?search={search}");
+                _toaster.Info($"Search results: {BooksApi.Count.ToString()} books");
+                NotifyStateChanged();
+            } catch (Exception ex) {
+                throw ex;
+            }
         }
         private void NotifyStateChanged() => OnChange?.Invoke();
     }

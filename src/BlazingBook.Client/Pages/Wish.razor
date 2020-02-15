@@ -16,11 +16,10 @@
                     @foreach (var wishList in OrderState.WishList) {        
                         <TableBody>
                             <TableRow>
-                                <TableRowCell>@wishList.Book.Name</TableRowCell>
-                                <TableRowCell>@wishList.Book.Description</TableRowCell>
+                                <TableRowCell>@wishList.Book.Title</TableRowCell>
+                                <TableRowCell>@wishList.Book.Author</TableRowCell>
                                 <TableRowCell>@wishList.Book.BasePrice</TableRowCell>
-
-                                    <TableRowCell><Button @onclick="@(() => OrderState.ShowConfigureBookDialog(wishList.Book))">+</Button></TableRowCell>
+                                <TableRowCell><Button @onclick="@(() => OrderState.ShowConfigureBookDialog(wishList.Book))">+</Button></TableRowCell>
                                 
                                 @if(wishList.Id != -1) {
                                     <TableRowCell><Button @onclick="@(() => OrderState.RemoveFromWishList(wishList.Id))">x</Button></TableRowCell>

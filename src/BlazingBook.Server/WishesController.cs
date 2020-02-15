@@ -26,17 +26,19 @@ namespace BlazingBook.Server {
         }
 
         [HttpPost]
-        public async Task<ActionResult<Wish>> AddWishes(WishCreate wishCreate) {
-            var book = await _db.BookBases.FindAsync(wishCreate.BookId);
-            var iFBookExist = await _db.Wishes.FindAsync(wishCreate.BookId);
-            if (book == null) {
-                BadRequest("Invalid book id");
-            }
-            var wish = new Wish {
-                BookId = wishCreate.BookId,
-                UserId = GetUserId()
+        public async Task<ActionResult<Wish>> AddWishes(Wish wish) {
+            // var book = await _db.BookBases.FindAsync(wishCreate.BookId);
+            // var ifBookExist = await _db.Wishes.FindAsync(wishCreate.BookId);
+            // if (book == null) {
+            //     BadRequest("Invalid book id");
+            // }
+            wish = new Wish {
+                BookId = wish.BookId,
+                UserId = GetUserId(),
+                Book = wish.Book,
+                Id = wish.Id
             };
-            wish.Book = book;
+            // wish.Book = book;
             await _db.Wishes.AddAsync(wish);
             await _db.SaveChangesAsync();
             return Ok(wish);
