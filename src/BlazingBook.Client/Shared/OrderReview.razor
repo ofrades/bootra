@@ -19,10 +19,10 @@
 <p>
     <strong>
         Total price:
-        @Order.GetFormattedTotalPrice()
+        @Order.TotalPrice
     </strong>
 </p>
 
 @code {
-    [Parameter] public Order Order { get; set; }
+    [Parameter] public Order Order { get; set; } = new Order();
 }

@@ -12,11 +12,10 @@ namespace BlazingBook {
 
         public int Id { get; set; }
 
-        public int OrderId { get; set; }
-
         public BookBase BookBase { get; set; }
+        // public int BasketId { get; set; }
 
-        public int BookBaseId { get; set; }
+        // public int BookBaseId { get; set; }
 
         public int Size { get; set; }
 
