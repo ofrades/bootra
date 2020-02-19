@@ -19,7 +19,7 @@ namespace BlazingBook.Server {
         public async Task<ActionResult<List<Wish>>> GetWishes() {
             var query = await _db.Wishes
                 .Where(o => o.UserId == GetUserId())
-                .Include(o => o.Book)
+                .Include(o => o.BookBase)
                 .OrderByDescending(s => s.BookId).ToListAsync();
 
             return query;
@@ -27,19 +27,22 @@ namespace BlazingBook.Server {
 
         [HttpPost]
         public async Task<ActionResult<Wish>> AddWishes(Wish wish) {
-            // var book = await _db.BookBases.FindAsync(wishCreate.BookId);
-            // var ifBookExist = await _db.Wishes.FindAsync(wishCreate.BookId);
-            // if (book == null) {
-            //     BadRequest("Invalid book id");
-            // }
-            wish = new Wish {
-                BookId = wish.BookId,
-                UserId = GetUserId(),
-                Book = wish.Book,
-                Id = wish.Id
-            };
-            // wish.Book = book;
-            await _db.Wishes.AddAsync(wish);
+            var book = await _db.BookBases.FindAsync(wish.BookId);
+            if (book != null) {
+                wish = new Wish {
+                    UserId = GetUserId(),
+                    BookBase = book,
+                    Id = wish.Id
+                };
+                _db.Wishes.Attach(wish).State = EntityState.Added;
+            } else {
+                wish = new Wish {
+                    UserId = GetUserId(),
+                    BookBase = wish.BookBase,
+                    Id = wish.Id
+                };
+                _db.Wishes.Attach(wish).State = EntityState.Detached;
+            }
             await _db.SaveChangesAsync();
             return Ok(wish);
         }

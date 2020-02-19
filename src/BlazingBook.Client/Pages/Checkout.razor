@@ -10,11 +10,11 @@
             <h2>Redirecting you...</h2>
         </NotAuthorized>
         <Authorized>
-            <EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="PlaceOrder">
+            <EditForm Model="OrderState.Order.DeliveryAddress" OnValidSubmit="OrderState.PlaceOrder">
                 <div class="checkout-cols">
                     <div class="checkout-order-details">
                         <h4>Review order</h4>
-                        <OrderReview Order="@OrderState.Order" />
+                        <BasketReview Basket="@OrderState.BasketList" />
                     </div>
 
                     <div class="checkout-delivery-address">
@@ -23,7 +23,7 @@
                     </div>
                 </div>
 
-                <button type="submit" class="checkout-button btn btn-warning" disabled="@isSubmitting">
+                <button type="submit" class="checkout-button btn btn-warning" disabled="@OrderState.isSubmitting">
                     Place order
                 </button>
 
@@ -34,7 +34,6 @@
 </div>
 
 @code {
-    bool isSubmitting;
     [CascadingParameter] Task<AuthenticationState> AuthenticationStateTask { get; set; }
 
     protected override async Task OnInitializedAsync()
@@ -49,7 +48,7 @@
         }
 
         // Try to recover any temporary saved order
-        if (!OrderState.Order.Books.Any())
+        if (!OrderState.BasketList.Any())
         {
             var savedOrder = await LocalStorage.GetAsync<Order>(JSRuntime, "currentorder");
             if (savedOrder != null)
@@ -57,8 +56,7 @@
                 OrderState.ReplaceOrder(savedOrder);
                 await LocalStorage.DeleteAsync(JSRuntime, "currentorder");
             }
-            else
-            {
+            else {
                 // There's nothing check out - go to home
                 NavigationManager.NavigateTo("");
             }
@@ -68,27 +66,9 @@
         _ = RequestNotificationSubscriptionAsync();
     }
 
-    async Task PlaceOrder()
-    {
-        isSubmitting = true;
-
-        try
-        {
-            var newOrderId = await HttpClient.PostJsonAsync<int>("orders", OrderState.Order);
-            OrderState.ResetOrder();
-            NavigationManager.NavigateTo($"myorders/{newOrderId}");
-        }
-        finally
-        {
-            isSubmitting = false;
-        }
-    }
-
-    async Task RequestNotificationSubscriptionAsync()
-    {
+    async Task RequestNotificationSubscriptionAsync(){
         var subscription = await JSRuntime.InvokeAsync<NotificationSubscription>("blazorPushNotifications.requestSubscription");
-        if (subscription != null)
-        {
+        if (subscription != null){
             await HttpClient.PutJsonAsync<object>("notifications/subscribe", subscription);
         }
     }

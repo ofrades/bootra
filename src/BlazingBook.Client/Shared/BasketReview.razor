@@ -1,0 +1,28 @@
+﻿@foreach (var book in Basket)
+{
+    <p>
+        <strong>
+            @(book.Books.Size)"
+            @book.Books.BookBase.Title
+            (@book.Books.GetFormattedTotalPrice())
+        </strong>
+    </p>
+
+    <ul>
+        @foreach (var extra in book.Books.Extras)
+        {
+            <li>+ @extra.Extra.Name</li>
+        }
+    </ul>
+}
+
+<p>
+    <strong>
+        Total price:
+        @Basket.Sum(c => c.GetTotalPrice())
+    </strong>
+</p>
+
+@code {
+    [Parameter] public List<Basket> Basket { get; set; }
+}

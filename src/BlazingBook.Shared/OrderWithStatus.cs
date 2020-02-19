@@ -4,15 +4,10 @@ using System.Collections.Generic;
 namespace BlazingBook {
     public class OrderWithStatus {
         public readonly static TimeSpan PreparationDuration = TimeSpan.FromSeconds(5);
-        public readonly static TimeSpan DeliveryDuration = TimeSpan.FromSeconds(10); // Unrealistic, but more interesting to watch
-
+        public readonly static TimeSpan DeliveryDuration = TimeSpan.FromSeconds(10);
         public Order Order { get; set; }
-
         public string StatusText { get; set; }
-
         public static OrderWithStatus FromOrder(Order order) {
-            // To simulate a real backend process, we fake status updates based on the amount
-            // of time since the order was placed
             string statusText;
             var dispatchTime = order.CreatedTime.Add(PreparationDuration);
 
@@ -26,7 +21,7 @@ namespace BlazingBook {
 
             return new OrderWithStatus {
                 Order = order,
-                    StatusText = statusText,
+                StatusText = statusText,
             };
         }
     }

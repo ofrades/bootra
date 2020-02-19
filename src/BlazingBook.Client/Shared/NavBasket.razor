@@ -9,7 +9,7 @@
 </Button>
 
 @code{
-    int basketCount => OrderState.Order.Books.Count();
+    int basketCount => OrderState.BasketList.Count();
     protected override void OnParametersSet() {
         OrderState.OnChange += StateHasChanged;
     }

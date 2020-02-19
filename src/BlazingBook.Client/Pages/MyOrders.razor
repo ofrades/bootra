@@ -15,23 +15,17 @@
                 Items:
                 <strong>@item.Order.Books.Count()</strong>;
                 Total price:
-                <strong>@item.Order.GetFormattedTotalPrice()</strong>
+                <strong>@item.Order.TotalPrice</strong>
             </div>
             <div class="col">
                 Status: <strong>@item.StatusText</strong>
-            </div>
-            <div class="col flex-grow-0">
-                <a href="myorders/@item.Order.OrderId" class="btn btn-success">
-                    Track &gt;
-                </a>
             </div>
         </Item>
     </TemplatedList>
 </div>
 
 @code {
-    async Task<List<OrderWithStatus>> LoadOrders()
-    {
+    async Task<List<OrderWithStatus>> LoadOrders() {
         return await HttpClient.GetJsonAsync<List<OrderWithStatus>>("orders");
     }
 }
