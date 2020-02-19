@@ -41,17 +41,16 @@ namespace BlazingBook.Client {
                     Author = resultApi.Authors.Select(c => c.Name).SingleOrDefault(),
                     BasePrice = 12.00m,
                     Id = resultApi.Id,
-                    ImageUrl = "",
                     Title = resultApi.Title,
                 };
             }
-            if (WishList.Any(x => x.BookId == book.Id)) {
+            if (WishList.Any(x => x.BookBase.Id == book.Id)) {
                 _toaster.Info("Already Wished");
                 // TODO: Toast Wish already exists in basket
                 // } else if (WishList.Any(c => c.BookId == ConfiguringBook.BookBase.Id)) {
                 //    return;
             } else {
-                var fakeWish = new Wish { Id = -1, BookId = book.Id, BookBase = book, UserId = "" };
+                var fakeWish = new Wish { Id = -1, BookBase = book, UserId = "" };
                 try {
                     WishList.Add(fakeWish);
                     NotifyStateChanged();
@@ -100,7 +99,6 @@ namespace BlazingBook.Client {
                         Author = result.Authors.Select(c => c.Name).FirstOrDefault(),
                         BasePrice = 12.00m,
                         Id = result.Id,
-                        ImageUrl = null,
                         Title = result.Title,
                     },
                 Size = BookCustom.DefaultSize,
@@ -116,21 +114,20 @@ namespace BlazingBook.Client {
             NotifyStateChanged();
             ShowingConfigureDialog = true;
         }
-        public void CancelConfigureBookDialog() {
-            ConfiguringBook = null;
-            ShowingConfigureDialog = false;
-        }
         public async Task ConfirmConfigureBookDialog() {
             var basketItem = new Basket {
                 Books = ConfiguringBook,
             };
             BasketList.Add(basketItem);
             var res = await _httpClient.PostJsonAsync<Basket>("basket", basketItem);
-            if (WishList.Any(c => c.BookId == ConfiguringBook.BookBase.Id)) {
-                await RemoveFromWishList(WishList.Where(c => c.BookId == ConfiguringBook.BookBase.Id).Select(c => c.Id).Single());
+            if (WishList.Any(c => c.BookBase.Id == ConfiguringBook.BookBase.Id)) {
+                await RemoveFromWishList(WishList.Where(c => c.BookBase.Id == ConfiguringBook.BookBase.Id).Select(c => c.Id).Single());
             }
-            // var basket = await _localStorage.GetItemAsync<BookCustom>("basket");
             NotifyStateChanged();
+            ConfiguringBook = null;
+            ShowingConfigureDialog = false;
+        }
+        public void CancelConfigureBookDialog() {
             ConfiguringBook = null;
             ShowingConfigureDialog = false;
         }
@@ -152,7 +149,7 @@ namespace BlazingBook.Client {
         }
 
         public async void RemoveConfiguredBook(BookCustom book) {
-            var basketItem = BasketList.FirstOrDefault(c => c.Books == book);
+            var basketItem = BasketList.FirstOrDefault(c => c.Books.Id == book.Id);
             BasketList.Remove(basketItem);
             var res = await _httpClient.DeleteAsync($"basket/{basketItem.Id}");
             NotifyStateChanged();

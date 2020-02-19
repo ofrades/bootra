@@ -47,7 +47,7 @@ namespace BlazingBook.Server {
                 // in the database - prevent the submitter from making up
                 // new bookbases and extras
                 foreach (var book in order.Books) {
-                    // book.BookBaseId = book.BookBase.Id;
+                    book.BookBaseId = book.BookBase.Id;
                     book.BookBase = null;
 
                     foreach (var extra in book.Extras) {

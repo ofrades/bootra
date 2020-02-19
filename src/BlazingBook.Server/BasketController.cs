@@ -27,21 +27,33 @@ namespace BlazingBook.Server {
 
         [HttpPost]
         public async Task<ActionResult<Basket>> AddItemToBasket(Basket book) {
-            var basketItem = new Basket {
+            var existingBookBase = _db.BookBases.Find(book.Books.BookBase.Id);
+            var basketItem = new Basket { };
+            if (existingBookBase == null) {
+                await _db.BookBases.AddAsync(new BookBase {
+                    Id = book.Books.Id,
+                        Author = book.Books.BookBase.Author,
+                        Title = book.Books.BookBase.Title,
+                        BasePrice = book.Books.BookBase.BasePrice,
+                });
+                await _db.SaveChangesAsync();
+            }
+            basketItem = new Basket {
                 UserId = GetUserId(),
                 Books = new BookCustom {
-                BookBase = new BookBase { Id = book.Books.Id },
+                BookBase = new BookBase { 
+                    Id = book.Books.BookBase.Id,
+                    Title = book.Books.BookBase.Title },
                 Extras = new List<BookExtra>(),
                 }
             };
-            basketItem.Books.BookBase = null;
+            // basketItem.Books.BookBase = null;
             foreach (var extra in basketItem.Books.Extras) {
                 extra.Id = extra.Extra.Id;
                 extra.BookId = basketItem.Books.Id;
             }
 
-            basketItem.Books = book.Books;
-            _db.BasketItems.Attach(basketItem).State = EntityState.Added;
+            _db.BasketItems.Attach(basketItem);
             await _db.SaveChangesAsync();
             return Ok(basketItem);
         }
@@ -49,7 +61,7 @@ namespace BlazingBook.Server {
         [HttpDelete]
         [Route("{id}")]
         public async Task DeleteBasketItem([FromRoute] int id) {
-            var res = await _db.BasketItems.FindAsync(id);
+            var res = _db.BasketItems.Find(id);
             if (res == null) {
                 BadRequest("Invalid book id");
             }

@@ -20,29 +20,36 @@ namespace BlazingBook.Server {
             var query = await _db.Wishes
                 .Where(o => o.UserId == GetUserId())
                 .Include(o => o.BookBase)
-                .OrderByDescending(s => s.BookId).ToListAsync();
+                .OrderByDescending(s => s.Id).ToListAsync();
 
             return query;
         }
 
         [HttpPost]
         public async Task<ActionResult<Wish>> AddWishes(Wish wish) {
-            var book = await _db.BookBases.FindAsync(wish.BookId);
-            if (book != null) {
-                wish = new Wish {
-                    UserId = GetUserId(),
-                    BookBase = book,
-                    Id = wish.Id
-                };
-                _db.Wishes.Attach(wish).State = EntityState.Added;
-            } else {
+            var book = _db.BookBases.Find(wish.BookBase.Id);
+            if (book == null) {
+                _db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
+                _db.BookBases.Add(new BookBase {
+                    Id = wish.BookBase.Id,
+                        Author = wish.BookBase.Author,
+                        Title = wish.BookBase.Title,
+                        BasePrice = wish.BookBase.BasePrice,
+                });
+                await _db.SaveChangesAsync();
                 wish = new Wish {
                     UserId = GetUserId(),
                     BookBase = wish.BookBase,
                     Id = wish.Id
                 };
-                _db.Wishes.Attach(wish).State = EntityState.Detached;
+            } else {
+                wish = new Wish {
+                    UserId = GetUserId(),
+                    BookBase = book,
+                    Id = wish.Id
+                };
             }
+            _db.Wishes.Attach(wish);
             await _db.SaveChangesAsync();
             return Ok(wish);
         }

@@ -6,15 +6,9 @@ namespace BlazingBook {
     /// </summary>
     public class BookBase {
         public int Id { get; set; }
-
         public string Title { get; set; }
-
         public decimal BasePrice { get; set; }
-
         public string Author { get; set; }
-
-        public string ImageUrl { get; set; }
-
         public string GetFormattedBasePrice() => BasePrice.ToString("0.00");
     }
 }

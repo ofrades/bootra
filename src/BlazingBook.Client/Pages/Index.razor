@@ -65,7 +65,7 @@
                         </TableRowCell>
                         <TableRowCell>
                             <Button @onclick="@(() => OrderState.AddToWishList(null, item))">
-                                <span class="@(OrderState.WishList.Any(w => w.BookId == item.Id) ? "heart-filled" : "heart")"></span>
+                                <span class="@(OrderState.WishList.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
                             </Button>
                         </TableRowCell>
                     </TableRow>
@@ -78,7 +78,6 @@
             @foreach (var item in OrderState.Bookbases){
             <Column ColumnSize="ColumnSize.Is4.OnTablet.Is3.OnWidescreen.Is12.OnMobile">
                 <Card Margin="Margin.Is4.OnY">
-                        <CardImage src="@item.ImageUrl">
                         </CardImage>
                         <CardBody>
                             <CardTitle>@item.Title</CardTitle>
@@ -88,7 +87,7 @@
                                 <span class="@(OrderState.BasketList.Select(w => w.Books.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
                             </Button>
                             <Button @onclick="@(() => OrderState.AddToWishList(item, null))">
-                                <span class="@(OrderState.WishList.Any(w => w.BookId == item.Id) ? "heart-filled" : "heart")"></span>
+                                <span class="@(OrderState.WishList.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
                             </Button>
                         </CardBody>
                 </Card>
