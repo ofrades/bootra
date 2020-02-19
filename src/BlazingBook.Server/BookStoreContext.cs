@@ -24,6 +24,7 @@ namespace BlazingBook.Server {
             modelBuilder.Entity<Wish>().HasOne(pst => pst.BookBase);
             modelBuilder.Entity<BookCustom>().HasKey(pst => new { pst.Id });
             modelBuilder.Entity<BookCustom>().HasOne(ps => ps.BookBase);
+            modelBuilder.Entity<BookCustom>().HasOne(ps => ps.BookBase);
             modelBuilder.Entity<BookCustom>().HasMany(ps => ps.Extras);
         }
     }
