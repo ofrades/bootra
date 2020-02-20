@@ -1,0 +1,14 @@
+@inject OrderState OrderState
+@implements IDisposable
+@if(OrderState.isLoading == true) {
+	<div class="spinner-border"> </div>
+}
+
+@code{
+	protected override void OnParametersSet() {
+        OrderState.OnChange += StateHasChanged;
+    }
+    public void Dispose() {
+        OrderState.OnChange -= StateHasChanged;
+    }
+}

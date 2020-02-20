@@ -14,6 +14,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Microsoft.OpenApi.Models;
 
 namespace BlazingBook.Server {
@@ -27,6 +28,10 @@ namespace BlazingBook.Server {
         public void ConfigureServices(IServiceCollection services) {
             services.AddMvc()
                 .AddNewtonsoftJson();
+            services.AddSingleton<IMyService>((container) => {
+                var logger = container.GetRequiredService<ILogger<MyService>>();
+                return new MyService() { Logger = logger };
+            });
             services.Configure<OrdersController>(Configuration.GetSection("Notification"));
 
             services.AddDbContext<BookStoreContext>(options => options.UseSqlite("Data Source=bootra.db"));
@@ -86,7 +91,7 @@ namespace BlazingBook.Server {
                     options.SaveTokens = true;
 
                     // options.Scope.Add("openid email profile");
-                    
+
                     options.ClaimActions.MapJsonKey("urn:google:picture", "picture", "url");
                     options.ClaimActions.MapJsonKey("urn:google:image", "picture");
                     options.ClaimActions.MapJsonKey("urn:google:locale", "locale", "string");
@@ -105,12 +110,13 @@ namespace BlazingBook.Server {
                 });
         }
 
-        public void Configure(IApplicationBuilder app, IWebHostEnvironment env) {
+        public void Configure(IApplicationBuilder app, IWebHostEnvironment env, ILogger<Startup> logger) {
             app.UseResponseCompression();
 
             if (env.IsDevelopment()) {
                 app.UseDeveloperExceptionPage();
                 app.UseBlazorDebugging();
+                logger.LogInformation("In Development environment");
             }
 
             app.UseStaticFiles();

@@ -21,13 +21,14 @@ namespace BlazingBook.Server {
 
         [HttpDelete]
         [Route("{id}")]
-        public async Task RemoveBookBases([FromRoute] int id) {
+        public async Task<ActionResult> RemoveBookBases([FromRoute] int id) {
             var res = await _db.BookBases.FindAsync(id);
             if (res == null) {
                 BadRequest("Invalid book id");
             }
             _db.BookBases.Remove(res);
             await _db.SaveChangesAsync();
+            return Ok(res);
         }
 
         [HttpPost]
@@ -43,7 +44,7 @@ namespace BlazingBook.Server {
             }
 
             await _db.SaveChangesAsync();
-            return Ok("Saved");
+            return Ok("Saved to the database");
         }
     }
 }

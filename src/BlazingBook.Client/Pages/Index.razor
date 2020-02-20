@@ -6,7 +6,6 @@
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JS
 @inject Blazored.Localisation.Services.IBrowserDateTimeProvider browserDateTimeProvider
-
 @if (OrderState.BasketList.Any()) {
 <Sidebar @ref="sidebar">
     <SidebarContent>
@@ -36,7 +35,7 @@
 
 <div class="main">
     <Column ColumnSize="ColumnSize.Is4" Class="text-center mx-auto">
-        <TextEdit Placeholder="Search..." @bind-Text="@search" @onblur="() => OrderState.SearchBooks(search)"/>
+        <TextEdit Placeholder="Search..." @bind-Text="@search" @onchange="() => OrderState.SearchBooks(search)" disabled="@OrderState.isSubmitting"/>
     </Column>
 
     @if (OrderState.BooksApi != null) {
@@ -69,7 +68,9 @@
             </Table>
             </div>
     }
-    @if (OrderState.Bookbases != null) {
+    @if (OrderState.Bookbases == null) {
+        <Loading></Loading>
+    } else {
         <CardGroup>
             @foreach (var item in OrderState.Bookbases){
             <Column ColumnSize="ColumnSize.Is4.OnTablet.Is3.OnWidescreen.Is12.OnMobile">

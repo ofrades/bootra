@@ -29,8 +29,7 @@ else
     [Parameter] public RenderFragment<TItem> Item { get; set; }
     [Parameter] public string ListGroupClass { get; set; }
 
-    protected override async Task OnParametersSetAsync()
-    {
+    protected override async Task OnParametersSetAsync(){
         items = await Loader();
     }
 }
