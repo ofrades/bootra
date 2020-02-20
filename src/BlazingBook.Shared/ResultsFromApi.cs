@@ -17,7 +17,7 @@ namespace BlazingBook {
 
 		[JsonPropertyName("authors")]
 		public List<Author> Authors { get; set; } = new List<Author>();
-		public decimal BasePrice { get; set; }
+		public decimal BasePrice { get; set; } = 12.00m;
 
 		[JsonPropertyName("subjects")]
 		public List<string> Subjects { get; set; }

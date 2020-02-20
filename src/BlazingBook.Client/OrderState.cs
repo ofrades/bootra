@@ -32,23 +32,9 @@ namespace BlazingBook.Client {
         public bool isSubmitting { get; set; }
         public Result ResultApi { get; set; }
         public List<Author> Author { get; set; }
-        public async Task AddToWishList(BookBase book = null, Result resultApi = null) {
-            if (book == null) {
-                if (resultApi is null) {
-                    throw new ArgumentNullException(nameof(resultApi));
-                }
-                book = new BookBase {
-                    Author = resultApi.Authors.Select(c => c.Name).SingleOrDefault(),
-                    BasePrice = 12.00m,
-                    Id = resultApi.Id,
-                    Title = resultApi.Title,
-                };
-            }
+        public async Task AddToWishList(BookBase book) {
             if (WishList.Any(x => x.BookBase.Id == book.Id)) {
                 _toaster.Info("Already Wished");
-                // TODO: Toast Wish already exists in basket
-                // } else if (WishList.Any(c => c.BookId == ConfiguringBook.BookBase.Id)) {
-                //    return;
             } else {
                 var fakeWish = new Wish { Id = -1, BookBase = book, UserId = "" };
                 try {
@@ -92,25 +78,13 @@ namespace BlazingBook.Client {
             await GetWishes();
             NotifyStateChanged();
         }
-        public void ShowConfigureBookDialog(BookBase bookbase = null, Result result = null) {
-            if (bookbase == null) {
-                ConfiguringBook = new BookCustom() {
-                    BookBase = new BookBase{
-                        Author = result.Authors.Select(c => c.Name).FirstOrDefault(),
-                        BasePrice = 12.00m,
-                        Id = result.Id,
-                        Title = result.Title,
-                    },
+        public void ShowConfigureBookDialog(BookBase bookbase) {
+            ConfiguringBook = new BookCustom() {
+                BookBase = bookbase,
                 Size = BookCustom.DefaultSize,
                 Extras = new List<BookExtra>(),
             };
-            } else {
-                ConfiguringBook = new BookCustom() {
-                    BookBase = bookbase,
-                    Size = BookCustom.DefaultSize,
-                    Extras = new List<BookExtra>(),
-                };
-            }
+
             NotifyStateChanged();
             ShowingConfigureDialog = true;
         }
@@ -118,14 +92,45 @@ namespace BlazingBook.Client {
             var basketItem = new Basket {
                 Books = ConfiguringBook,
             };
-            BasketList.Add(basketItem);
-            var res = await _httpClient.PostJsonAsync<Basket>("basket", basketItem);
-            if (WishList.Any(c => c.BookBase.Id == ConfiguringBook.BookBase.Id)) {
-                await RemoveFromWishList(WishList.Where(c => c.BookBase.Id == ConfiguringBook.BookBase.Id).Select(c => c.Id).Single());
+            try {
+                BasketList.Add(basketItem);
+                var res = await _httpClient.PostJsonAsync<Basket>("basket", basketItem);
+                if (WishList.Any(c => c.BookBase.Id == ConfiguringBook.BookBase.Id)) {
+                    await RemoveFromWishList(WishList.Where(c => c.BookBase.Id == ConfiguringBook.BookBase.Id).Select(c => c.Id).Single());
+                }
+                NotifyStateChanged();
+                ConfiguringBook = null;
+                ShowingConfigureDialog = false;
+
+            } catch (HttpRequestException ex) {
+                _toaster.Warning($"Error {ex}");
             }
-            NotifyStateChanged();
-            ConfiguringBook = null;
-            ShowingConfigureDialog = false;
+        }
+        public async Task AddBook(Result result) {
+            try {
+                await _httpClient.PostJsonAsync<Result>("bookbase", result);
+                await GetBooks();
+                NotifyStateChanged();
+            } catch (HttpRequestException ex) {
+                _toaster.Warning($"Error adding book {ex}");
+            }
+        }
+        public async Task GetBooks() {
+            try {
+                Bookbases = await _httpClient.GetJsonAsync<List<BookBase>>("bookbase");
+                NotifyStateChanged();
+            } catch (HttpRequestException ex) {
+                _toaster.Warning($"Error getting books {ex}");
+            }
+        }
+        public async Task RemoveBook(int id) {
+            try {
+                await _httpClient.DeleteAsync($"bookbase/{id}");
+                NotifyStateChanged();
+                _toaster.Success($"Deleted Book with id: {id}");
+            } catch (HttpRequestException ex) {
+                _toaster.Warning($"Error removing book {ex}");
+            }
         }
         public void CancelConfigureBookDialog() {
             ConfiguringBook = null;
@@ -137,12 +142,12 @@ namespace BlazingBook.Client {
             isSubmitting = true;
 
             try {
-                var newOrderId = await _httpClient.PostJsonAsync<int>("orders", Order);
-                _navigationManager.NavigateTo($"myorders");
+                await _httpClient.PostJsonAsync<int>("orders", Order);
                 foreach (var item in Order.Books) {
                     RemoveConfiguredBook(item);
                 }
                 ResetOrder();
+                _navigationManager.NavigateTo($"myorders");
             } finally {
                 isSubmitting = false;
             }
@@ -150,9 +155,13 @@ namespace BlazingBook.Client {
 
         public async void RemoveConfiguredBook(BookCustom book) {
             var basketItem = BasketList.FirstOrDefault(c => c.Books.Id == book.Id);
-            BasketList.Remove(basketItem);
-            var res = await _httpClient.DeleteAsync($"basket/{basketItem.Id}");
-            NotifyStateChanged();
+            try {
+                BasketList.Remove(basketItem);
+                await _httpClient.DeleteAsync($"basket/{basketItem.Id}");
+                NotifyStateChanged();
+            } catch (Exception ex) {
+                _toaster.Warning($"Error removing book {ex}");
+            }
         }
 
         public void ResetOrder() {
@@ -168,7 +177,7 @@ namespace BlazingBook.Client {
                 _toaster.Info($"Search results: {BooksApi.Count.ToString()} books");
                 NotifyStateChanged();
             } catch (Exception ex) {
-                throw ex;
+                _toaster.Warning($"No results {ex}");
             }
         }
         private void NotifyStateChanged() => OnChange?.Invoke();

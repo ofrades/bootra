@@ -28,27 +28,15 @@ namespace BlazingBook.Server {
         [HttpPost]
         public async Task<ActionResult<Wish>> AddWishes(Wish wish) {
             var book = _db.BookBases.Find(wish.BookBase.Id);
-            if (book == null) {
-                _db.ChangeTracker.QueryTrackingBehavior = QueryTrackingBehavior.NoTracking;
-                _db.BookBases.Add(new BookBase {
-                    Id = wish.BookBase.Id,
-                        Author = wish.BookBase.Author,
-                        Title = wish.BookBase.Title,
-                        BasePrice = wish.BookBase.BasePrice,
-                });
-                await _db.SaveChangesAsync();
-                wish = new Wish {
-                    UserId = GetUserId(),
-                    BookBase = wish.BookBase,
-                    Id = wish.Id
-                };
-            } else {
-                wish = new Wish {
-                    UserId = GetUserId(),
-                    BookBase = book,
-                    Id = wish.Id
-                };
+            if (book is null){
+                BadRequest("Id not found");
             }
+            wish = new Wish {
+                UserId = GetUserId(),
+                BookBase = book,
+                Id = wish.Id
+            };
+            
             _db.Wishes.Attach(wish);
             await _db.SaveChangesAsync();
             return Ok(wish);

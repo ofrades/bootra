@@ -36,10 +36,11 @@
 
 <div class="main">
     <Column ColumnSize="ColumnSize.Is4" Class="text-center mx-auto">
-        <TextEdit Placeholder="Search..." @bind-Text="@search"  @onblur="() => OrderState.SearchBooks(search)"/>
+        <TextEdit Placeholder="Search..." @bind-Text="@search" @onblur="() => OrderState.SearchBooks(search)"/>
     </Column>
 
     @if (OrderState.BooksApi != null) {
+        <div style="height: 40vh; overflow-y: auto; border-bottom: 3px solid">
             <Table Margin="Margin.Is4.OnY">
                 <TableHeader>
                     <TableRow>
@@ -47,8 +48,7 @@
                         <TableHeaderCell>Author</TableHeaderCell>
                         <TableHeaderCell>Language</TableHeaderCell>
                         <TableHeaderCell>Downloads</TableHeaderCell>
-                        <TableHeaderCell>Add to Basket</TableHeaderCell>
-                        <TableHeaderCell>Add Wish</TableHeaderCell>
+                        <TableHeaderCell>Add Book</TableHeaderCell>
                     </TableRow>
                 </TableHeader>
             @foreach(var item in OrderState.BooksApi.Results){
@@ -59,37 +59,35 @@
                         <TableRowCell>@item.Languages.FirstOrDefault()</TableRowCell>
                         <TableRowCell>@item.DownloadCount</TableRowCell>
                         <TableRowCell>
-                            <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(null, item))">
-                                <span class="@(OrderState.BasketList.Select(w => w.Books.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
-                            </Button>
-                        </TableRowCell>
-                        <TableRowCell>
-                            <Button @onclick="@(() => OrderState.AddToWishList(null, item))">
-                                <span class="@(OrderState.WishList.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
+                            <Button @onclick="@(() => OrderState.AddBook(item))">
+                                +
                             </Button>
                         </TableRowCell>
                     </TableRow>
                 </TableBody>
             }
             </Table>
+            </div>
     }
     @if (OrderState.Bookbases != null) {
         <CardGroup>
             @foreach (var item in OrderState.Bookbases){
             <Column ColumnSize="ColumnSize.Is4.OnTablet.Is3.OnWidescreen.Is12.OnMobile">
                 <Card Margin="Margin.Is4.OnY">
-                        </CardImage>
-                        <CardBody>
-                            <CardTitle>@item.Title</CardTitle>
-                            <CardSubtitle>@item.Author</CardSubtitle>
-                            <CardText class="price">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol @item.GetFormattedBasePrice()</CardText>
-                            <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item, null))">
-                                <span class="@(OrderState.BasketList.Select(w => w.Books.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
-                            </Button>
-                            <Button @onclick="@(() => OrderState.AddToWishList(item, null))">
-                                <span class="@(OrderState.WishList.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
-                            </Button>
-                        </CardBody>
+                    <CardBody>
+                        <CardTitle>@item.Title</CardTitle>
+                        <CardSubtitle>@item.Author</CardSubtitle>
+                        <CardText class="price">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol @item.GetFormattedBasePrice()</CardText>
+                        <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">
+                            <span class="@(OrderState.BasketList.Select(w => w.Books.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
+                        </Button>
+                        <Button @onclick="@(() => OrderState.AddToWishList(item))">
+                            <span class="@(OrderState.WishList.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
+                        </Button>
+                        <Button @onclick="@(() => OrderState.RemoveBook(item.Id))">
+                            x
+                        </Button>
+                    </CardBody>
                 </Card>
             </Column>
             }
@@ -111,12 +109,11 @@
         sidebar.Toggle();
     }
     string search;
-    Order Order => OrderState.Order;
     protected async override Task OnInitializedAsync() {
         OrderState.OnChange += StateHasChanged;
-        OrderState.Bookbases = await HttpClient.GetJsonAsync<List<BookBase>>("bookbase");
-        await OrderState.GetWishes();
+        await OrderState.GetBooks();
         await OrderState.GetBasketList();
+        await OrderState.GetWishes();
     }
 
     protected override void OnParametersSet() {
