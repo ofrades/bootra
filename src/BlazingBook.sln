@@ -12,7 +12,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingBook.ComponentsLibra
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BlazingComponents", "BlazingComponents\BlazingComponents.csproj", "{659BA43E-C36D-4F2D-A715-22465BE90792}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "..\tests\test.csproj", "{61A698DB-FE17-4937-9CF6-340681DE752D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "tests", "..\tests\tests.csproj", "{61A698DB-FE17-4937-9CF6-340681DE752D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -96,6 +96,18 @@ Global
 		{61A698DB-FE17-4937-9CF6-340681DE752D}.Release|x64.Build.0 = Release|Any CPU
 		{61A698DB-FE17-4937-9CF6-340681DE752D}.Release|x86.ActiveCfg = Release|Any CPU
 		{61A698DB-FE17-4937-9CF6-340681DE752D}.Release|x86.Build.0 = Release|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Debug|x64.Build.0 = Debug|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Debug|x86.Build.0 = Debug|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Release|Any CPU.Build.0 = Release|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Release|x64.ActiveCfg = Release|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Release|x64.Build.0 = Release|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Release|x86.ActiveCfg = Release|Any CPU
+		{DA6924E0-3A60-48F3-9FCE-9248DFF65FAD}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

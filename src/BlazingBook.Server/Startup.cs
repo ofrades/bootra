@@ -27,11 +27,7 @@ namespace BlazingBook.Server {
 
         public void ConfigureServices(IServiceCollection services) {
             services.AddMvc()
-                .AddNewtonsoftJson();
-            services.AddSingleton<IMyService>((container) => {
-                var logger = container.GetRequiredService<ILogger<MyService>>();
-                return new MyService() { Logger = logger };
-            });
+                .AddNewtonsoftJson();;
             services.Configure<OrdersController>(Configuration.GetSection("Notification"));
 
             services.AddDbContext<BookStoreContext>(options => options.UseSqlite("Data Source=bootra.db"));

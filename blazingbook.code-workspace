@@ -7,7 +7,7 @@
   "settings": {
     "sqltools.connections": [
       {
-        "database": "${workspaceFolder:blazingbook}/src/BlazingBook.Server/bootra.db",
+        "database": "${workspaceFolder}/src/BlazingBook.Server/bootra.db",
         "dialect": "SQLite",
         "isActive": false,
         "isConnected": false,

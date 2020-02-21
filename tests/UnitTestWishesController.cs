@@ -10,23 +10,40 @@ using BlazingBook;
 using BlazingBook.Server;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using Moq;
 using Xunit;
 
 namespace tests {
-    public class UnitTest2 {
+    public class UnitTestWishesController {
+
+        [Fact]
+        public void Get_WhenCalled_ReturnsOkResult() {
+            //Arrange
+            var mock = new Mock<ILogger<WishesController>>();
+            var _logger = mock.Object;
+            var _db = CreateContext();
+            var _controller = new WishesController(_db, _logger);
+            _controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            _controller.ControllerContext.HttpContext.User = Mock.Of<ClaimsPrincipal>();
+            // Act
+            var okResult = _controller.GetWishes();
+
+            // Assert
+            Assert.IsType<OkObjectResult>(okResult.Result);
+        }
 
         [Fact]
         public async Task GetWishes_() {
             var mock = new Mock<ILogger<WishesController>>();
             var _logger = mock.Object;
             var _db = CreateContext();
-            var controller = new WishesController(_db, _logger);
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.User = Mock.Of<ClaimsPrincipal>();
-            var res = await controller.GetWishes();
+            var _controller = new WishesController(_db, _logger);
+            _controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            _controller.ControllerContext.HttpContext.User = Mock.Of<ClaimsPrincipal>();
+            var res = await _controller.GetWishes();
             var bookList = res.Value;
             Assert.Equal(bookList.Count, await _db.Wishes.CountAsync());
         }
@@ -36,12 +53,12 @@ namespace tests {
             var mock = new Mock<ILogger<WishesController>>();
             var _logger = mock.Object;
             var _db = CreateContext();
-            var controller = new WishesController(_db, _logger);
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.User = Mock.Of<ClaimsPrincipal>();
+            var _controller = new WishesController(_db, _logger);
+            _controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            _controller.ControllerContext.HttpContext.User = Mock.Of<ClaimsPrincipal>();
             var newBook = new BookBase { Author = "asd", Title = "asd", BasePrice = 10.00m, Id = 10 };
             var newWish = new Wish { Id = 10, UserId = "miguel", BookBase = newBook };
-            var res = await controller.AddWishes(newWish);
+            var res = await _controller.AddWishes(newWish);
             var bookList = res.Value;
             Assert.Equal(newWish, await _db.Wishes.FindAsync(newWish.Id));
         }
@@ -51,12 +68,12 @@ namespace tests {
             var mock = new Mock<ILogger<WishesController>>();
             var _logger = mock.Object;
             var _db = CreateContext();
-            var controller = new WishesController(_db, _logger);
-            controller.ControllerContext.HttpContext = new DefaultHttpContext();
-            controller.ControllerContext.HttpContext.User = Mock.Of<ClaimsPrincipal>();
+            var _controller = new WishesController(_db, _logger);
+            _controller.ControllerContext.HttpContext = new DefaultHttpContext();
+            _controller.ControllerContext.HttpContext.User = Mock.Of<ClaimsPrincipal>();
             var newBook = new BookBase { Author = "asd", Title = "asd", BasePrice = 10.00m, Id = 10 };
             var wish = new Wish { Id = 10, UserId = "miguel", BookBase = newBook };
-            var res = await controller.DeleteWishes(wish.Id);
+            var res = await _controller.DeleteWishes(wish.Id);
             Assert.Equal(1, await _db.Wishes.CountAsync());
         }
 
