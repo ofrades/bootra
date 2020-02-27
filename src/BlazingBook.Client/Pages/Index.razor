@@ -35,7 +35,8 @@
 
 <div class="main">
     <Column ColumnSize="ColumnSize.Is4" Class="text-center mx-auto">
-        <TextEdit Placeholder="Search..." @bind-Text="@search" @onchange="() => OrderState.SearchBooks(search)" disabled="@OrderState.isSubmitting"/>
+        @* <TextEdit Placeholder="Search..." @bind-Text="@search" @onchange="() => OrderState.SearchBooks(search)" disabled="@OrderState.isSubmitting"/> *@
+            <SearchBox SearchQueryChanged="Search" isSubmiting="@OrderState.isSubmitting"/>
     </Column>
 
     @if (OrderState.BooksApi != null) {
@@ -73,8 +74,8 @@
     } else {
         <CardGroup>
             @foreach (var item in OrderState.Bookbases){
-            <Column ColumnSize="ColumnSize.Is4.OnTablet.Is3.OnWidescreen.Is12.OnMobile">
-                <Card Margin="Margin.Is4.OnY">
+            <Column ColumnSize="ColumnSize.Is12">
+                <Card Margin="Margin.Is2.OnY">
                     <CardBody>
                         <CardTitle>@item.Title</CardTitle>
                         <CardSubtitle>@item.Author</CardSubtitle>
@@ -105,11 +106,14 @@
 </TemplatedDialog>
 
 @code {
+
+    async Task Search(string query) {
+        await OrderState.SearchBooks(query);
+    }
     Sidebar sidebar;
     void ToggleSidebar(){
         sidebar.Toggle();
     }
-    string search;
     protected async override Task OnInitializedAsync() {
         OrderState.OnChange += StateHasChanged;
         await OrderState.GetBooks();

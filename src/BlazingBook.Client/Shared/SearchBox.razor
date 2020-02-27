@@ -1,0 +1,49 @@
+@using System.Timers;
+
+@implements IDisposable
+
+<div class="search">
+    <input class="form-control" placeholder="Search..." @attributes="AdditionalAttributes" @bind="SearchQuery" @bind:event="oninput" IsDisabled="isSubmiting" />
+</div>
+
+@code {
+    Timer debounceTimer;
+    string searchQuery;
+
+    [Parameter]
+    public string SearchQuery {
+        get => searchQuery;
+        set {
+            searchQuery = value;
+            debounceTimer?.Stop();
+            debounceTimer?.Start();
+        }
+    }
+
+    [Parameter(CaptureUnmatchedValues = true)]
+    public IDictionary<string, object> AdditionalAttributes { get; set; }
+
+	[Parameter]
+	public bool isSubmiting { get; set; } = false;
+
+    [Parameter]
+    public int Debounce { get; set; } = 1000;
+
+    [Parameter]
+    public EventCallback<string> SearchQueryChanged { get; set; }
+
+    protected override void OnInitialized() {
+        debounceTimer = new Timer();
+        debounceTimer.Interval = Debounce;
+        debounceTimer.AutoReset = false;
+        debounceTimer.Elapsed += Search;
+    }
+
+    async void Search(Object source, ElapsedEventArgs e) {
+        await InvokeAsync(() => SearchQueryChanged.InvokeAsync(SearchQuery));
+    }
+
+    public void Dispose() {
+        debounceTimer.Dispose();
+    }
+}

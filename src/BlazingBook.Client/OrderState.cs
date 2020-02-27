@@ -73,7 +73,6 @@ namespace BlazingBook.Client {
                 _toaster.Info($"Error: {ex}");
             }
         }
-
         public async Task RemoveFromWishList(int id) {
             try {
                 await _httpClient.DeleteAsync($"wishes/{id}");
