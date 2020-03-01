@@ -72,15 +72,6 @@ namespace BlazingBook.Server {
                     options.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
                 })
                 .AddCookie()
-                .AddTwitter(twitterOptions => {
-                    twitterOptions.ConsumerKey = Configuration["Authentication:Twitter:ConsumerKey"];
-                    twitterOptions.ConsumerSecret = Configuration["Authentication:Twitter:ConsumerSecret"];
-                    twitterOptions.RetrieveUserDetails = true;
-                    twitterOptions.Events.OnRemoteFailure = (context) => {
-                        context.HandleResponse();
-                        return context.Response.WriteAsync("<script>window.close();</script>");
-                    };
-                })
                 .AddGoogle(options => {
                     options.ClientId = Configuration["Authentication:Google:ClientId"];
                     options.ClientSecret = Configuration["Authentication:Google:ClientSecret"];

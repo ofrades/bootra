@@ -1,0 +1,42 @@
+@inject OrderState OrderState
+
+@if (OrderState.BooksApi != null) {
+    <div style="height: 40vh; overflow-y: auto; border-bottom: 3px solid">
+        <Table Margin="Margin.Is4.OnY">
+            <TableHeader>
+                <TableRow>
+                    <TableHeaderCell>Title</TableHeaderCell>
+                    <TableHeaderCell>Author</TableHeaderCell>
+                    <TableHeaderCell>Language</TableHeaderCell>
+                    <TableHeaderCell>Downloads</TableHeaderCell>
+                    <TableHeaderCell>Add Book</TableHeaderCell>
+                </TableRow>
+            </TableHeader>
+        @foreach(var item in OrderState.BooksApi.Results){
+            <TableBody>
+                <TableRow>
+                    <TableRowCell>@item.Title</TableRowCell>
+                    <TableRowCell>@item.Authors.Select(c => c.Name).FirstOrDefault()</TableRowCell>
+                    <TableRowCell>@item.Languages.FirstOrDefault()</TableRowCell>
+                    <TableRowCell>@item.DownloadCount</TableRowCell>
+                    <TableRowCell>
+                        <Button @onclick="@(() => OrderState.AddBook(item))">
+                            +
+                        </Button>
+                    </TableRowCell>
+                </TableRow>
+            </TableBody>
+        }
+        </Table>
+    </div>
+}
+
+@code{
+	protected override void OnParametersSet() {
+        OrderState.OnChange += StateHasChanged;
+    }
+    public void Dispose() {
+        OrderState.OnChange -= StateHasChanged;
+    
+	}
+}

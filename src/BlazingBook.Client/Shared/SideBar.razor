@@ -1,0 +1,53 @@
+@inject OrderState OrderState
+@inject IJSRuntime JS
+@implements IDisposable
+
+@if (OrderState.BasketList.Any()) {
+<Sidebar @ref="sidebar">
+    <SidebarContent>
+        <SidebarNavigation>
+                <SidebarLabel>Shopping Bag <NavBasket /></SidebarLabel>
+                    <SidebarItem>
+                        @foreach (var configuredBook in OrderState.BasketList) {
+                            <ConfiguredBookItem BookCustom="configuredBook.Books" OnRemoved="@(() => RemoveBook(configuredBook.Books))" />
+                        }
+                    </SidebarItem>
+                    <SidebarItem>
+                        <div class="order-total @(OrderState.BasketList.Any() ? "" : "hidden")">
+                            Total:
+                    
+                            <span class="total-price">@OrderState.BasketList.Sum(c => c.GetTotalPrice())</span>
+                            <a href="checkout">
+                                <Button Color="Color.Warning" disabled="@(OrderState.BasketList.Count == 0)">
+                                Order
+                                </Button>
+                            </a>
+                        </div>
+                    </SidebarItem>
+        </SidebarNavigation>
+    </SidebarContent>
+</Sidebar>
+}
+
+@code{
+	protected async override Task OnInitializedAsync() {
+        OrderState.OnChange += StateHasChanged;
+        await OrderState.GetBasketList();
+    }
+
+	async Task RemoveBook(BookCustom configuredBook) {
+	    if (await JS.Confirm($"Remove {configuredBook.BookBase.Title} book from the order?")) {
+	        OrderState.RemoveConfiguredBook(configuredBook);
+	    }
+	}
+	Sidebar sidebar;
+	void ToggleSidebar(){
+	    sidebar.Toggle();
+	}
+	protected override void OnParametersSet() {
+			OrderState.OnChange += StateHasChanged;
+	}
+	public void Dispose() {
+		OrderState.OnChange -= StateHasChanged;
+	}
+}

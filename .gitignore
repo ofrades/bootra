@@ -335,3 +335,4 @@ ASALocalRun/
 # Don't ignore server launchSettings.json. We need a specific port number for auth to work.
 !**/BlazingBook.Server/Properties/launchSettings.json
 src/BlazingBook.Server/appsettings.Development.json
+src/BlazingBook.Server/appsettings.json

@@ -45,7 +45,6 @@
             db.Extras.AddRange(extras);
             db.BookBases.AddRange(bookbases);
             db.SaveChanges();
-            //TODO logger
         }
     }
 }

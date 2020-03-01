@@ -29,7 +29,7 @@ namespace BlazingBook.Client {
         public List<Wish> WishList { get; set; } = new List<Wish>();
         public List<BookBase> Bookbases { get; set; }
         public Root BooksApi { get; set; }
-        public bool isSubmitting { get; set; }
+        public bool isSubmitting { get; set; } = false;
         public bool isLoading { get; set; }
         public Result ResultApi { get; set; }
         public List<Author> Author { get; set; }

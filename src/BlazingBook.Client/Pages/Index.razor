@@ -1,123 +1,75 @@
 ﻿@page "/"
 @inject HttpClient HttpClient
 @inject OrderState OrderState
-@implements IDisposable
-@inject IJSRuntime IJSRuntime
-@inject NavigationManager NavigationManager
-@inject IJSRuntime JS
 @inject Blazored.Localisation.Services.IBrowserDateTimeProvider browserDateTimeProvider
-@if (OrderState.BasketList.Any()) {
-<Sidebar @ref="sidebar">
-    <SidebarContent>
-        <SidebarNavigation>
-                <SidebarLabel>Shopping Bag <NavBasket /></SidebarLabel>
-                    <SidebarItem>
-                        @foreach (var configuredBook in OrderState.BasketList) {
-                            <ConfiguredBookItem BookCustom="configuredBook.Books" OnRemoved="@(() => RemoveBook(configuredBook.Books))" />
-                        }
-                    </SidebarItem>
-                    <SidebarItem>
-                        <div class="order-total @(OrderState.BasketList.Any() ? "" : "hidden")">
-                            Total:
-                    
-                            <span class="total-price">@OrderState.BasketList.Sum(c => c.GetTotalPrice())</span>
-                            <a href="checkout">
-                                <Button Color="Color.Warning" disabled="@(OrderState.BasketList.Count == 0)">
-                                Order
-                                </Button>
-                            </a>
-                        </div>
-                    </SidebarItem>
-        </SidebarNavigation>
-    </SidebarContent>
-</Sidebar>
-}
+
+<AuthorizeView>
+  <Authorized>
+    
+
+
+
+<SideBar />
 
 <div class="main">
-    <Column ColumnSize="ColumnSize.Is4" Class="text-center mx-auto">
-        @* <TextEdit Placeholder="Search..." @bind-Text="@search" @onchange="() => OrderState.SearchBooks(search)" disabled="@OrderState.isSubmitting"/> *@
-            <SearchBox SearchQueryChanged="Search" isSubmiting="@OrderState.isSubmitting"/>
-    </Column>
 
-    @if (OrderState.BooksApi != null) {
-        <div style="height: 40vh; overflow-y: auto; border-bottom: 3px solid">
-            <Table Margin="Margin.Is4.OnY">
-                <TableHeader>
-                    <TableRow>
-                        <TableHeaderCell>Title</TableHeaderCell>
-                        <TableHeaderCell>Author</TableHeaderCell>
-                        <TableHeaderCell>Language</TableHeaderCell>
-                        <TableHeaderCell>Downloads</TableHeaderCell>
-                        <TableHeaderCell>Add Book</TableHeaderCell>
-                    </TableRow>
-                </TableHeader>
-            @foreach(var item in OrderState.BooksApi.Results){
-                <TableBody>
-                    <TableRow>
-                        <TableRowCell>@item.Title</TableRowCell>
-                        <TableRowCell>@item.Authors.Select(c => c.Name).FirstOrDefault()</TableRowCell>
-                        <TableRowCell>@item.Languages.FirstOrDefault()</TableRowCell>
-                        <TableRowCell>@item.DownloadCount</TableRowCell>
-                        <TableRowCell>
-                            <Button @onclick="@(() => OrderState.AddBook(item))">
-                                +
-                            </Button>
-                        </TableRowCell>
-                    </TableRow>
-                </TableBody>
-            }
-            </Table>
-            </div>
-    }
-    @if (OrderState.Bookbases == null) {
-        <Loading></Loading>
-    } else {
-        <CardGroup>
-            @foreach (var item in OrderState.Bookbases){
-            <Column ColumnSize="ColumnSize.Is12">
-                <Card Margin="Margin.Is2.OnY">
-                    <CardBody>
-                        <CardTitle>@item.Title</CardTitle>
-                        <CardSubtitle>@item.Author</CardSubtitle>
-                        <CardText class="price">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol @item.GetFormattedBasePrice()</CardText>
-                        <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">
-                            <span class="@(OrderState.BasketList.Select(w => w.Books.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
-                        </Button>
-                        <Button @onclick="@(() => OrderState.AddToWishList(item))">
-                            <span class="@(OrderState.WishList.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
-                        </Button>
-                        <Button @onclick="@(() => OrderState.RemoveBook(item.Id))">
-                            x
-                        </Button>
-                    </CardBody>
-                </Card>
-            </Column>
-            }
-        </CardGroup>
-    }
+<Column ColumnSize="ColumnSize.Is4" Class="text-center mx-auto">
+    <SearchBox SearchQueryChanged="Search"/>
+</Column>
+
+<ApiBooks />
+
+@if (OrderState.Bookbases == null) {
+    <Loading></Loading>
+} else {
+    <CardGroup>
+        @foreach (var item in OrderState.Bookbases){
+        <Column ColumnSize="ColumnSize.Is12">
+            <Card Margin="Margin.Is2.OnY">
+                <CardBody>
+                    <CardTitle>@item.Title</CardTitle>
+                    <CardSubtitle>@item.Author</CardSubtitle>
+                    <CardText class="price">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol @item.GetFormattedBasePrice()</CardText>
+                    <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">
+                        <span class="@(OrderState.BasketList.Select(w => w.Books.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
+                    </Button>
+                    <Button @onclick="@(() => OrderState.AddToWishList(item))">
+                        <span class="@(OrderState.WishList.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
+                    </Button>
+                    <Button @onclick="@(() => OrderState.RemoveBook(item.Id))">
+                        x
+                    </Button>
+                </CardBody>
+            </Card>
+        </Column>
+        }
+    </CardGroup>
+}
 </div>
 
 
 <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
-    <ConfigureBookDialog
-        BookCustom="OrderState.ConfiguringBook"
-        OnCancel="OrderState.CancelConfigureBookDialog"
-        OnConfirm="OrderState.ConfirmConfigureBookDialog" />
+<ConfigureBookDialog
+    BookCustom="OrderState.ConfiguringBook"
+    OnCancel="OrderState.CancelConfigureBookDialog"
+    OnConfirm="OrderState.ConfirmConfigureBookDialog" />
 </TemplatedDialog>
+
+  </Authorized>
+  <NotAuthorized>
+    <p>You are not allowed to add any books, please login.</p>
+  </NotAuthorized>
+</AuthorizeView>
 
 @code {
 
     async Task Search(string query) {
         await OrderState.SearchBooks(query);
     }
-    Sidebar sidebar;
-    void ToggleSidebar(){
-        sidebar.Toggle();
-    }
+
     protected async override Task OnInitializedAsync() {
         OrderState.OnChange += StateHasChanged;
         await OrderState.GetBooks();
-        await OrderState.GetBasketList();
         await OrderState.GetWishes();
     }
 
@@ -128,9 +80,4 @@
         OrderState.OnChange -= StateHasChanged;
     }
 
-    async Task RemoveBook(BookCustom configuredBook) {
-        if (await JS.Confirm($"Remove {configuredBook.BookBase.Title} book from the order?")) {
-            OrderState.RemoveConfiguredBook(configuredBook);
-        }
-    }
 }
