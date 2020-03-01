@@ -5,9 +5,6 @@
 
 <AuthorizeView>
   <Authorized>
-    
-
-
 
 <SideBar />
 
@@ -45,8 +42,14 @@
         }
     </CardGroup>
 }
+
 </div>
 
+</Authorized>
+<NotAuthorized>
+    <p class="text-center mt-2">You are not allowed to add any books, please login.</p>
+</NotAuthorized>
+</AuthorizeView>
 
 <TemplatedDialog Show="OrderState.ShowingConfigureDialog">
 <ConfigureBookDialog
@@ -55,14 +58,8 @@
     OnConfirm="OrderState.ConfirmConfigureBookDialog" />
 </TemplatedDialog>
 
-  </Authorized>
-  <NotAuthorized>
-    <p>You are not allowed to add any books, please login.</p>
-  </NotAuthorized>
-</AuthorizeView>
 
 @code {
-
     async Task Search(string query) {
         await OrderState.SearchBooks(query);
     }
