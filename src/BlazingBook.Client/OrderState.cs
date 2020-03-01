@@ -30,6 +30,7 @@ namespace BlazingBook.Client {
         public List<BookBase> Bookbases { get; set; }
         public Root BooksApi { get; set; }
         public bool isSubmitting { get; set; } = false;
+        public bool isClose { get; set; } = false;
         public bool isLoading { get; set; }
         public Result ResultApi { get; set; }
         public List<Author> Author { get; set; }
@@ -118,11 +119,12 @@ namespace BlazingBook.Client {
                 isSubmitting = true;
                 NotifyStateChanged();
                 await _httpClient.PostJsonAsync<Result>("bookbase", result);
-                isSubmitting = false;
                 NotifyStateChanged();
             } catch (HttpRequestException ex) {
                 _toaster.Warning($"Error adding book {ex}");
             } finally {
+                isSubmitting = false;
+                isClose = true;
                 await GetBooks();
                 NotifyStateChanged();
             }
@@ -204,6 +206,7 @@ namespace BlazingBook.Client {
                     NotifyStateChanged();
                     BooksApi = await _httpClient.GetJsonAsync<Root>($"http://gutendex.com/books?search={search}");
                     _toaster.Info($"Search results: {BooksApi.Count.ToString()} books");
+                    isClose = false;
                     isSubmitting = false;
                     NotifyStateChanged();
                 } catch (Exception ex) {

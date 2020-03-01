@@ -6,44 +6,45 @@
 <AuthorizeView>
   <Authorized>
 
-<SideBar />
+    <SideBar />
 
-<div class="main">
+    <div class="main">
 
-<Column ColumnSize="ColumnSize.Is4" Class="text-center mx-auto">
-    <SearchBox SearchQueryChanged="Search"/>
-</Column>
+    <Column ColumnSize="ColumnSize.Is4" Class="text-center mx-auto">
+        <SearchBox SearchQueryChanged="Search"/>
+    </Column>
+    @if(!OrderState.isClose){
+        <ApiBooks />
+    }
 
-<ApiBooks />
+    @if (OrderState.Bookbases == null) {
+        <Loading></Loading>
+    } else {
+        <CardGroup>
+            @foreach (var item in OrderState.Bookbases){
+            <Column ColumnSize="ColumnSize.Is12">
+                <Card Margin="Margin.Is2.OnY">
+                    <CardBody>
+                        <CardTitle>@item.Title</CardTitle>
+                        <CardSubtitle>@item.Author</CardSubtitle>
+                        <CardText class="price">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol @item.GetFormattedBasePrice()</CardText>
+                        <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">
+                            <span class="@(OrderState.BasketList.Select(w => w.Books.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
+                        </Button>
+                        <Button @onclick="@(() => OrderState.AddToWishList(item))">
+                            <span class="@(OrderState.WishList.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
+                        </Button>
+                        <Button @onclick="@(() => OrderState.RemoveBook(item.Id))">
+                            x
+                        </Button>
+                    </CardBody>
+                </Card>
+            </Column>
+            }
+        </CardGroup>
+    }
 
-@if (OrderState.Bookbases == null) {
-    <Loading></Loading>
-} else {
-    <CardGroup>
-        @foreach (var item in OrderState.Bookbases){
-        <Column ColumnSize="ColumnSize.Is12">
-            <Card Margin="Margin.Is2.OnY">
-                <CardBody>
-                    <CardTitle>@item.Title</CardTitle>
-                    <CardSubtitle>@item.Author</CardSubtitle>
-                    <CardText class="price">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol @item.GetFormattedBasePrice()</CardText>
-                    <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">
-                        <span class="@(OrderState.BasketList.Select(w => w.Books.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
-                    </Button>
-                    <Button @onclick="@(() => OrderState.AddToWishList(item))">
-                        <span class="@(OrderState.WishList.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
-                    </Button>
-                    <Button @onclick="@(() => OrderState.RemoveBook(item.Id))">
-                        x
-                    </Button>
-                </CardBody>
-            </Card>
-        </Column>
-        }
-    </CardGroup>
-}
-
-</div>
+    </div>
 
 </Authorized>
 <NotAuthorized>
@@ -58,7 +59,6 @@
     OnConfirm="OrderState.ConfirmConfigureBookDialog" />
 </TemplatedDialog>
 
-
 @code {
     async Task Search(string query) {
         await OrderState.SearchBooks(query);
@@ -69,12 +69,10 @@
         await OrderState.GetBooks();
         await OrderState.GetWishes();
     }
-
     protected override void OnParametersSet() {
         OrderState.OnChange += StateHasChanged;
     }
     public void Dispose() {
         OrderState.OnChange -= StateHasChanged;
     }
-
 }
