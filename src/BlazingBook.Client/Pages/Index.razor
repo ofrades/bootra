@@ -14,13 +14,13 @@
         <SearchBox SearchQueryChanged="Search"/>
     </Column>
     @if(!OrderState.isClose){
-        <ApiBooks isAuthorized="true"/>
+        <ApiBooks isNotAuthorized="false"/>
     }
 
     @if (OrderState.Bookbases == null) {
         <Loading></Loading>
     } else {
-        <Books isAuthorized="true"/>
+        <Books isNotAuthorized="false"/>
     }
 
     </div>
