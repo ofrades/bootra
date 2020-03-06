@@ -10,7 +10,7 @@
 							Price: @item.GetFormattedBasePrice()
 						</CardText>
                     </CardBody>
-
+						@if(!isNotAuthorized){
 							<CardFooter class="text-center">								
 								<Button Color="Color.Secondary" @onclick="@(() => OrderState.ShowConfigureBookDialog(item))" IsDisabled="@isNotAuthorized">
 									<span class="@(OrderState.BasketList.Select(w => w.Books.BookBase)
@@ -24,6 +24,21 @@
 									<span class="iconify" data-icon="ant-design:close-outlined" data-inline="true"></span>
 								</Button>
 							</CardFooter>
+						} else {
+							<CardFooter class="text-center">								
+								<Button Color="Color.Secondary" IsDisabled="@isNotAuthorized">
+									<span class="@(OrderState.BasketList.Select(w => w.Books.BookBase)
+										.Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
+								</Button>
+								<Button Color="Color.Secondary" IsDisabled="@isNotAuthorized">
+										<span class="@(OrderState.WishList
+										.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
+								</Button>
+								<Button Color="Color.Danger" IsDisabled="@isNotAuthorized">
+									<span class="iconify" data-icon="ant-design:close-outlined" data-inline="true"></span>
+								</Button>
+							</CardFooter>
+						}
 
                 </Card>
             </Column>

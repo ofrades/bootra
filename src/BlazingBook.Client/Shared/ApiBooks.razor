@@ -20,9 +20,15 @@
                     <TableRowCell>@item.Languages.FirstOrDefault()</TableRowCell>
                     <TableRowCell>@item.DownloadCount</TableRowCell>
                     <TableRowCell>
-                        <Button @onclick="@(() => OrderState.AddBook(item))" IsDisabled="@isNotAuthorized">
-                        +
-                        </Button>
+                        @if(!isNotAuthorized){
+                            <Button @onclick="@(() => OrderState.AddBook(item))" IsDisabled="@isNotAuthorized">
+                            +
+                            </Button>
+                        } else {
+                            <Button IsDisabled="@isNotAuthorized">
+                            +
+                            </Button>
+                        }
                     </TableRowCell>
                 </TableRow>
             </TableBody>
