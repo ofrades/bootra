@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Net.Http;
-using System.Text.Json;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Sotsera.Blazor.Toaster;
@@ -212,6 +211,8 @@ namespace BlazingBook.Client {
                 } catch (Exception ex) {
                     _toaster.Warning($"No results {ex}");
                 }
+            } else {
+                isClose = true;
             }
         }
         private void NotifyStateChanged() => OnChange?.Invoke();

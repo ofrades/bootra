@@ -14,41 +14,36 @@
         <SearchBox SearchQueryChanged="Search"/>
     </Column>
     @if(!OrderState.isClose){
-        <ApiBooks />
+        <ApiBooks isAuthorized="true"/>
     }
 
     @if (OrderState.Bookbases == null) {
         <Loading></Loading>
     } else {
-        <CardGroup>
-            @foreach (var item in OrderState.Bookbases){
-            <Column ColumnSize="ColumnSize.Is12">
-                <Card Margin="Margin.Is2.OnY">
-                    <CardBody>
-                        <CardTitle>@item.Title</CardTitle>
-                        <CardSubtitle>@item.Author</CardSubtitle>
-                        <CardText class="price">@CultureInfo.CurrentUICulture.NumberFormat.CurrencySymbol @item.GetFormattedBasePrice()</CardText>
-                        <Button @onclick="@(() => OrderState.ShowConfigureBookDialog(item))">
-                            <span class="@(OrderState.BasketList.Select(w => w.Books.BookBase).Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
-                        </Button>
-                        <Button @onclick="@(() => OrderState.AddToWishList(item))">
-                            <span class="@(OrderState.WishList.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
-                        </Button>
-                        <Button @onclick="@(() => OrderState.RemoveBook(item.Id))">
-                            x
-                        </Button>
-                    </CardBody>
-                </Card>
-            </Column>
-            }
-        </CardGroup>
+        <Books isAuthorized="true"/>
     }
 
     </div>
 
 </Authorized>
 <NotAuthorized>
-    <p class="text-center mt-2">You are not allowed to add any books, please login.</p>
+    <div class="main">
+    <p class="text-center mt-2 text-danger">You are not allowed to buy any books, please login!</p>
+
+    <Column ColumnSize="ColumnSize.Is4" Class="text-center mx-auto">
+        <SearchBox SearchQueryChanged="Search"/>
+    </Column>
+    @if(!OrderState.isClose){
+        <ApiBooks isNotAuthorized="true"/>
+    }
+
+    @if (OrderState.Bookbases == null) {
+        <Loading></Loading>
+    } else {
+        <Books isNotAuthorized="true"/>
+    }
+
+    </div>
 </NotAuthorized>
 </AuthorizeView>
 
@@ -60,14 +55,16 @@
 </TemplatedDialog>
 
 @code {
+
     async Task Search(string query) {
         await OrderState.SearchBooks(query);
     }
 
     protected async override Task OnInitializedAsync() {
         OrderState.OnChange += StateHasChanged;
-        await OrderState.GetBooks();
         await OrderState.GetWishes();
+        await OrderState.GetBooks();
+        await OrderState.GetBasketList();
     }
     protected override void OnParametersSet() {
         OrderState.OnChange += StateHasChanged;

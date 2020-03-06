@@ -9,7 +9,7 @@
                     <TableHeaderCell>Author</TableHeaderCell>
                     <TableHeaderCell>Language</TableHeaderCell>
                     <TableHeaderCell>Downloads</TableHeaderCell>
-                    <TableHeaderCell>Add Book</TableHeaderCell>
+                        <TableHeaderCell>Add Book</TableHeaderCell>
                 </TableRow>
             </TableHeader>
         @foreach(var item in OrderState.BooksApi.Results){
@@ -20,8 +20,8 @@
                     <TableRowCell>@item.Languages.FirstOrDefault()</TableRowCell>
                     <TableRowCell>@item.DownloadCount</TableRowCell>
                     <TableRowCell>
-                        <Button @onclick="@(() => OrderState.AddBook(item))">
-                            +
+                        <Button @onclick="@(() => OrderState.AddBook(item))" IsDisabled="@isNotAuthorized">
+                        +
                         </Button>
                     </TableRowCell>
                 </TableRow>
@@ -32,6 +32,8 @@
 }
 
 @code{
+    [Parameter]
+    public bool isNotAuthorized { get; set; }
 	protected override void OnParametersSet() {
         OrderState.OnChange += StateHasChanged;
     }

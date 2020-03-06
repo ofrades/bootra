@@ -1,0 +1,45 @@
+@inject OrderState OrderState
+		<CardGroup Margin="Margin.Is2">
+            @foreach (var item in OrderState.Bookbases){
+            <Column Margin="Margin.Is2">
+                <Card Background="Background.Light">
+                    <CardBody>
+						<CardTitle Size="3">@item.Title</CardTitle>
+						<CardSubtitle Size="6">@item.Author</CardSubtitle>
+						<CardText>
+							Price: @item.GetFormattedBasePrice()
+						</CardText>
+                    </CardBody>
+
+							<CardFooter class="text-center">								
+								<Button Color="Color.Secondary" @onclick="@(() => OrderState.ShowConfigureBookDialog(item))" IsDisabled="@isNotAuthorized">
+									<span class="@(OrderState.BasketList.Select(w => w.Books.BookBase)
+										.Any(w => w.Id == item.Id) ? "shopping-filled" : "shopping")"></span>
+								</Button>
+								<Button Color="Color.Secondary" @onclick="@(() => OrderState.AddToWishList(item))" IsDisabled="@isNotAuthorized">
+										<span class="@(OrderState.WishList
+										.Any(w => w.BookBase.Id == item.Id) ? "heart-filled" : "heart")"></span>
+								</Button>
+								<Button Color="Color.Danger" @onclick="@(() => OrderState.RemoveBook(item.Id))" IsDisabled="@isNotAuthorized">
+									<span class="iconify" data-icon="ant-design:close-outlined" data-inline="true"></span>
+								</Button>
+							</CardFooter>
+
+                </Card>
+            </Column>
+            }
+        </CardGroup>
+@code{
+	[Parameter]
+	public bool isNotAuthorized { get; set; }
+    protected async override Task OnInitializedAsync() {
+        OrderState.OnChange += StateHasChanged;
+        await OrderState.GetBooks();
+    }
+	protected override void OnParametersSet() {
+        OrderState.OnChange += StateHasChanged;
+    }
+    public void Dispose() {
+        OrderState.OnChange -= StateHasChanged;
+    }
+}
